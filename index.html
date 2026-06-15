@@ -133,7 +133,7 @@
                 <span class="text-2xl">😊</span>
                 <span>Настроение</span>
             </h3>
-            <div class="overflow-x-auto no-scrollbar">
+            <div class="overflow-x-auto no-scrollbar" id="moodContainer">
                 <div class="flex gap-2 min-w-max pb-2" id="moodRow"></div>
             </div>
         </div>
@@ -143,7 +143,7 @@
             <div class="p-3 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
                 <span>⠿</span> Перетащи для изменения порядка
             </div>
-            <div class="overflow-x-auto no-scrollbar">
+            <div class="overflow-x-auto no-scrollbar" id="tableContainer">
                 <table class="w-full border-collapse min-w-max">
                     <thead>
                         <tr class="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs uppercase tracking-wider" id="tableHeader">
@@ -189,9 +189,9 @@
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🏋️')">️</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('😴')">😴</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🧘')"></button>
-                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🍎')"></button>
-                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('📚')">📚</button>
-                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('📝')"></button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🍎')">🍎</button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('📚')"></button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('📝')">📝</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('💻')">💻</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('💼')">💼</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🎯')"></button>
@@ -199,9 +199,9 @@
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🔥')"></button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('⭐')">⭐</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🎨')"></button>
-                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🎵')"></button>
-                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🧹')">🧹</button>
-                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🍳')"></button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🎵')">🎵</button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🧹')"></button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🍳')">🍳</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🌱')"></button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('✅')">✅</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('💰')">💰</button>
@@ -584,12 +584,14 @@
                 weekdaysRow.insertBefore(wdTh, weekdaysRow.lastElementChild);
             });
 
+            // Mood Row with future date blocking and auto-scroll
             const moodRow = document.getElementById('moodRow');
             moodRow.innerHTML = '';
             days.forEach(day => {
                 const date = new Date(viewYear, viewMonth, day);
                 const dateStr = formatDateStr(viewYear, viewMonth, day);
                 const isToday = (viewYear === today.getFullYear() && viewMonth === today.getMonth() && day === today.getDate());
+                const isFuture = date > today;
                 const mood = moodsData[dateStr];
                 const moodEmojis = ['', '😢', '😕', '😐', '🙂', '😄'];
                 const moodColors = ['', 'bg-red-400', 'bg-orange-400', 'bg-yellow-400', 'bg-lime-400', 'bg-green-500'];
@@ -598,6 +600,7 @@
                 
                 const cell = document.createElement('div');
                 cell.className = `flex flex-col items-center min-w-[50px]`;
+                cell.id = `mood-cell-${day}`;
                 
                 const dateDiv = document.createElement('div');
                 dateDiv.className = `flex flex-col items-center mb-1.5 ${isToday ? 'text-blue-600 dark:text-blue-400 font-bold' : 'text-slate-500 dark:text-slate-400'}`;
@@ -605,19 +608,34 @@
                 cell.appendChild(dateDiv);
                 
                 const btn = document.createElement('button');
-                btn.onclick = () => openMoodModal(dateStr);
                 
-                if (mood) {
-                    btn.className = `mood-cell w-10 h-10 rounded-full flex items-center justify-center text-xl ${moodColors[mood.mood]} text-white shadow-md hover:shadow-lg transition`;
-                    btn.textContent = moodEmojis[mood.mood];
+                if (isFuture) {
+                    btn.className = `w-10 h-10 rounded-full flex items-center justify-center text-lg bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed`;
+                    btn.innerHTML = '<span>🔒</span>';
+                    btn.disabled = true;
                 } else {
-                    btn.className = `mood-cell w-10 h-10 rounded-full flex items-center justify-center text-lg border-2 border-dashed ${isToday ? 'border-blue-400 dark:border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-800'} hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition`;
-                    btn.innerHTML = '<span class="text-slate-400 dark:text-slate-500 text-xs">+</span>';
+                    btn.onclick = () => openMoodModal(dateStr);
+                    
+                    if (mood) {
+                        btn.className = `mood-cell w-10 h-10 rounded-full flex items-center justify-center text-xl ${moodColors[mood.mood]} text-white shadow-md hover:shadow-lg transition`;
+                        btn.textContent = moodEmojis[mood.mood];
+                    } else {
+                        btn.className = `mood-cell w-10 h-10 rounded-full flex items-center justify-center text-lg border-2 border-dashed ${isToday ? 'border-blue-400 dark:border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-800'} hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition`;
+                        btn.innerHTML = '<span class="text-slate-400 dark:text-slate-500 text-xs">+</span>';
+                    }
                 }
                 
                 cell.appendChild(btn);
                 moodRow.appendChild(cell);
             });
+
+            // Auto-scroll to current day in mood row
+            setTimeout(() => {
+                const todayCell = document.getElementById(`mood-cell-${today.getDate()}`);
+                if (todayCell && viewYear === today.getFullYear() && viewMonth === today.getMonth()) {
+                    todayCell.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                }
+            }, 100);
 
             tbody.innerHTML = '';
             if (habits.length === 0) {
@@ -708,6 +726,14 @@
                     tbody.appendChild(tr);
                 });
             }
+
+            // Auto-scroll to current day in table
+            setTimeout(() => {
+                const todayHeader = Array.from(headerRow.children).find(th => th.textContent.trim() === String(today.getDate()));
+                if (todayHeader && viewYear === today.getFullYear() && viewMonth === today.getMonth()) {
+                    todayHeader.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                }
+            }, 200);
         }
 
         window.toggleHabit = async (habitId, dateStr, newState) => {
@@ -718,7 +744,6 @@
             const docRef = doc(db, "users", currentUser.uid, "completions", key);
             if (newState) {
                 await setDoc(docRef, { completed: true, updatedAt: serverTimestamp() });
-                // Add XP only on first completion
                 if (!wasCompleted) {
                     await addXP(10);
                 }
@@ -854,7 +879,7 @@
         window.exportToExcel = () => {
             const monthNames = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
             const days = Array.from({ length: getDaysInMonth(viewYear, viewMonth) }, (_, i) => i + 1);
-            const moodEmojis = ['', '😢', '', '😐', '🙂', '😄'];
+            const moodEmojis = ['', '😢', '😕', '😐', '🙂', '😄'];
             
             let csv = [`Активность;${days.map(d => `${d} ${monthNames[viewMonth]}`).join(';')};Серия\n`];
             habits.forEach(habit => {
