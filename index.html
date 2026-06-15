@@ -39,6 +39,55 @@
         .emoji-btn { transition: all 0.2s; cursor: pointer; }
         .emoji-btn:hover { transform: scale(1.15); }
         
+        /* Sticky columns - for all devices */
+        .sticky-col {
+            position: sticky !important;
+            left: 0 !important;
+            z-index: 10 !important;
+            background: inherit;
+        }
+        
+        .sticky-col::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: -8px;
+            bottom: 0;
+            width: 8px;
+            background: linear-gradient(to right, rgba(0,0,0,0.08), transparent);
+            pointer-events: none;
+        }
+        
+        .dark .sticky-col::after {
+            background: linear-gradient(to right, rgba(0,0,0,0.3), transparent);
+        }
+        
+        .sticky-col-right {
+            position: sticky !important;
+            right: 0 !important;
+            z-index: 10 !important;
+            background: inherit;
+        }
+        
+        .sticky-col-right::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -8px;
+            bottom: 0;
+            width: 8px;
+            background: linear-gradient(to left, rgba(0,0,0,0.08), transparent);
+            pointer-events: none;
+        }
+        
+        .dark .sticky-col-right::before {
+            background: linear-gradient(to left, rgba(0,0,0,0.3), transparent);
+        }
+        
+        thead th.sticky-col, thead th.sticky-col-right {
+            z-index: 20 !important;
+        }
+        
         .level-tooltip {
             display: none;
         }
@@ -60,10 +109,6 @@
         }
         
         @media (max-width: 768px) {
-            .mobile-hide-sticky {
-                position: static !important;
-                z-index: auto !important;
-            }
             .mobile-cell {
                 min-width: 36px !important;
                 padding: 4px 2px !important;
@@ -221,12 +266,12 @@
                 <table class="w-full border-collapse min-w-max">
                     <thead>
                         <tr class="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] md:text-xs uppercase tracking-wider" id="tableHeader">
-                            <th class="p-2 md:p-4 border-b border-r border-slate-200 dark:border-slate-700 text-left mobile-hide-sticky bg-slate-50 dark:bg-slate-800 z-20 min-w-[100px] md:min-w-[150px]">Ворк</th>
-                            <th class="p-2 md:p-4 border-b border-slate-200 dark:border-slate-700 text-center mobile-hide-sticky bg-slate-50 dark:bg-slate-800 z-20 min-w-[60px] md:min-w-[100px]">Серия 🔥</th>
+                            <th class="p-2 md:p-4 border-b border-r border-slate-200 dark:border-slate-700 text-left sticky-col bg-slate-50 dark:bg-slate-800 min-w-[120px] md:min-w-[150px]">Активность</th>
+                            <th class="p-2 md:p-4 border-b border-slate-200 dark:border-slate-700 text-center sticky-col-right bg-slate-50 dark:bg-slate-800 min-w-[80px] md:min-w-[100px]">Серия </th>
                         </tr>
                         <tr id="weekdaysRow" class="bg-slate-50 dark:bg-slate-800 text-[8px] md:text-[10px] text-slate-400 dark:text-slate-500">
-                            <th class="p-1 border-b border-r border-slate-200 dark:border-slate-700 mobile-hide-sticky bg-slate-50 dark:bg-slate-800 z-20"></th>
-                            <th class="p-1 border-b border-slate-200 dark:border-slate-700 mobile-hide-sticky bg-slate-50 dark:bg-slate-800 z-20"></th>
+                            <th class="p-1 border-b border-r border-slate-200 dark:border-slate-700 sticky-col bg-slate-50 dark:bg-slate-800"></th>
+                            <th class="p-1 border-b border-slate-200 dark:border-slate-700 sticky-col-right bg-slate-50 dark:bg-slate-800"></th>
                         </tr>
                     </thead>
                     <tbody id="tableBody" class="text-xs md:text-sm"></tbody>
@@ -242,7 +287,7 @@
     <!-- Add Activity Modal -->
     <div id="modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="bg-white dark:bg-dark-card rounded-xl shadow-2xl w-full max-w-md p-6 border border-slate-200 dark:border-slate-700 max-h-[90vh] overflow-y-auto">
-            <h3 class="text-xl font-bold mb-4 text-slate-900 dark:text-dark-text">Планируем...</h3>
+            <h3 class="text-xl font-bold mb-4 text-slate-900 dark:text-dark-text">Новая активность</h3>
             <form id="habitForm" class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Название</label>
@@ -257,17 +302,17 @@
                     </div>
                     
                     <div id="emojiPicker" class="hidden grid grid-cols-6 gap-1 mb-3 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
-                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('💧')">💧</button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('💧')"></button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🏃')">🏃</button>
-                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🏋️')">️🏋️</button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🏋️')">🏋️</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('😴')">😴</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🧘')">🧘</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🍎')">🍎</button>
-                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('📚')">📚</button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('📚')"></button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('📝')">📝</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('💻')">💻</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('💼')">💼</button>
-                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🎯')">🎯</button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🎯')"></button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('💪')">💪</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🔥')">🔥</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('⭐')">⭐</button>
@@ -347,9 +392,9 @@
                     <div class="grid grid-cols-5 gap-2">
                         <label class="cursor-pointer"><input type="radio" name="mood" value="1" class="sr-only peer"><div class="text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-red-500 peer-checked:border-red-500 peer-checked:text-white transition">😢<div class="text-[11px] mt-1 leading-tight">Плохо</div></div></label>
                         <label class="cursor-pointer"><input type="radio" name="mood" value="2" class="sr-only peer"><div class="text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-orange-500 peer-checked:border-orange-500 peer-checked:text-white transition">😕<div class="text-[11px] mt-1 leading-tight">Так себе</div></div></label>
-                        <label class="cursor-pointer"><input type="radio" name="mood" value="3" class="sr-only peer"><div class="text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-yellow-500 peer-checked:border-yellow-500 peer-checked:text-white transition">😐<div class="text-[11px] mt-1 leading-tight">Норм</div></div></label>
+                        <label class="cursor-pointer"><input type="radio" name="mood" value="3" class="sr-only peer"><div class="text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-yellow-500 peer-checked:border-yellow-500 peer-checked:text-white transition"><div class="text-[11px] mt-1 leading-tight">Норм</div></div></label>
                         <label class="cursor-pointer"><input type="radio" name="mood" value="4" class="sr-only peer"><div class="text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-lime-500 peer-checked:border-lime-500 peer-checked:text-white transition">🙂<div class="text-[11px] mt-1 leading-tight">Хорошо</div></div></label>
-                        <label class="cursor-pointer"><input type="radio" name="mood" value="5" class="sr-only peer"><div class="text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-green-500 peer-checked:border-green-500 peer-checked:text-white transition">😄<div class="text-[11px] mt-1 leading-tight">Отлично</div></div></label>
+                        <label class="cursor-pointer"><input type="radio" name="mood" value="5" class="sr-only peer"><div class="text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-green-500 peer-checked:border-green-500 peer-checked:text-white transition"><div class="text-[11px] mt-1 leading-tight">Отлично</div></div></label>
                     </div>
                 </div>
                 <div>
@@ -386,7 +431,7 @@
 
         let currentUser = null, habits = [], completions = {}, notesData = {}, moodsData = {};
         let userLevel = 1, userXP = 0;
-        let xpEarnedToday = {}; // Track XP earned for specific habit+date combinations
+        let xpEarned = {};
         const today = new Date();
         let viewYear = today.getFullYear(), viewMonth = today.getMonth();
         const todayStr = today.toISOString().split('T')[0];
@@ -456,9 +501,8 @@
             
             const xpKey = `${habitId}-${dateStr}`;
             
-            // Check if XP already earned for this habit+date
-            if (xpEarnedToday[xpKey]) {
-                return; // Already earned XP for this completion
+            if (xpEarned[xpKey]) {
+                return;
             }
             
             userXP += 10;
@@ -470,8 +514,7 @@
                 showLevelUpNotification(userLevel);
             }
             
-            // Mark XP as earned
-            xpEarnedToday[xpKey] = true;
+            xpEarned[xpKey] = true;
             
             await setDoc(doc(db, "users", currentUser.uid, "profile", "stats"), {
                 level: userLevel,
@@ -520,8 +563,7 @@
                 completions = {}; 
                 s.docs.forEach(d => { 
                     completions[d.id] = true; 
-                    // Mark XP as already earned for existing completions
-                    xpEarnedToday[d.id] = true;
+                    xpEarned[d.id] = true;
                 }); 
                 render();
             });
@@ -639,10 +681,12 @@
             const tbody = document.getElementById('tableBody');
             const emptyState = document.getElementById('emptyState');
             const monthNames = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
-            document.getElementById('currentMonthDisplay').textContent = `${monthNames[viewMonth]} ${viewYear}`;
+            const monthText = `${monthNames[viewMonth]} ${viewYear}`;
+            
+            document.getElementById('currentMonthDisplay').textContent = monthText;
             const mobileMonthDisplay = document.getElementById('currentMonthDisplayMobile');
             if (mobileMonthDisplay) {
-            mobileMonthDisplay.textContent = `${monthNames[viewMonth]} ${viewYear}`;    
+                mobileMonthDisplay.textContent = monthText;
             }
 
             while (headerRow.children.length > 2) headerRow.removeChild(headerRow.children[1]);
@@ -676,7 +720,7 @@
                 const isToday = (viewYear === today.getFullYear() && viewMonth === today.getMonth() && day === today.getDate());
                 const isFuture = date > today;
                 const mood = moodsData[dateStr];
-                const moodEmojis = ['', '😢', '', '😐', '🙂', '😄'];
+                const moodEmojis = ['😢', '😢', '😕', '😐', '🙂', '😄'];
                 const moodColors = ['', 'bg-red-400', 'bg-orange-400', 'bg-yellow-400', 'bg-lime-400', 'bg-green-500'];
                 const weekday = getWeekdayShort(date);
                 const weekend = isWeekend(date);
@@ -744,12 +788,12 @@
 
                     const scheduleLabel = getScheduleLabel(habit);
                     const nameTd = document.createElement('td');
-                    nameTd.className = `p-2 md:p-3 border-r border-slate-200 dark:border-slate-700 mobile-hide-sticky bg-white dark:bg-dark-card z-10 font-medium text-slate-800 dark:text-dark-text flex items-center gap-1 md:gap-2 min-w-[100px] md:min-w-[150px] mobile-cell`;
+                    nameTd.className = `p-2 md:p-3 border-r border-slate-200 dark:border-slate-700 sticky-col bg-white dark:bg-dark-card font-medium text-slate-800 dark:text-dark-text flex items-center gap-1 md:gap-2 min-w-[120px] md:min-w-[150px] mobile-cell`;
                     nameTd.innerHTML = `
-                        <span class="cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 text-base md:text-lg hidden md:block">⠿</span>
+                        <span class="cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 text-base md:text-lg hidden md:block"></span>
                         <div class="flex-1 min-w-0 flex items-center gap-1 md:gap-2">
                             <span class="text-xl md:text-2xl flex-shrink-0">${habit.emoji || '📌'}</span>
-                            <span class="truncate mobile-text-xs">${habit.name || 'Ворк'}</span>
+                            <span class="truncate mobile-text-xs">${habit.name || 'Активность'}</span>
                         </div>
                         <div class="flex md:hidden gap-1">
                             <button onclick="moveHabit('${habit.id}', -1)" class="text-slate-400 hover:text-blue-500 text-xs px-1">↑</button>
@@ -797,7 +841,7 @@
                     });
 
                     const streakTd = document.createElement('td');
-                    streakTd.className = 'p-2 md:p-3 border-l border-slate-200 dark:border-slate-700 text-center mobile-hide-sticky bg-white dark:bg-dark-card z-10 font-bold text-slate-700 dark:text-slate-200 min-w-[60px] md:min-w-[100px] mobile-cell';
+                    streakTd.className = 'p-2 md:p-3 border-l border-slate-200 dark:border-slate-700 text-center sticky-col-right bg-white dark:bg-dark-card font-bold text-slate-700 dark:text-slate-200 min-w-[80px] md:min-w-[100px] mobile-cell';
                     streakTd.innerHTML = streak > 0 ? `<span class="text-orange-500 dark:text-orange-400 mobile-text-xs">🔥 ${streak}</span>` : '<span class="text-slate-300 dark:text-slate-600 mobile-text-xs">-</span>';
                     tr.appendChild(streakTd);
 
@@ -820,18 +864,16 @@
             const docRef = doc(db, "users", currentUser.uid, "completions", key);
             if (newState) {
                 await setDoc(docRef, { completed: true, updatedAt: serverTimestamp() });
-                // Add XP only on first completion
                 await addXP(habitId, dateStr);
             } else {
                 await deleteDoc(docRef);
-                // Remove XP tracking for this completion
-                delete xpEarnedToday[key];
+                delete xpEarned[key];
             }
         };
 
         window.deleteHabit = async (habitId) => {
             if (!currentUser) return;
-            if (confirm('Удалить эту запись и всю историю?')) {
+            if (confirm('Удалить эту активность и всю историю?')) {
                 await deleteDoc(doc(db, "users", currentUser.uid, "habits", habitId));
             }
         };
@@ -956,7 +998,7 @@
         window.exportToExcel = () => {
             const monthNames = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
             const days = Array.from({ length: getDaysInMonth(viewYear, viewMonth) }, (_, i) => i + 1);
-            const moodEmojis = ['', '😢', '😕', '😐', '🙂', '😄'];
+            const moodEmojis = ['', '😢', '', '😐', '🙂', '😄'];
             
             let csv = [`Активность;${days.map(d => `${d} ${monthNames[viewMonth]}`).join(';')};Серия\n`];
             habits.forEach(habit => {
