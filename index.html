@@ -39,7 +39,6 @@
         .emoji-btn { transition: all 0.2s; cursor: pointer; }
         .emoji-btn:hover { transform: scale(1.15); }
         
-        /* Sticky columns - for all devices */
         .sticky-col {
             position: sticky !important;
             left: 0 !important;
@@ -155,68 +154,59 @@
     </div>
 
     <div id="appScreen" class="hidden max-w-7xl mx-auto">
-        <!-- Header for Desktop -->
-        <div class="hidden md:flex flex-col gap-3 mb-4">
-            <div class="flex justify-between items-center">
-                <h1 class="text-3xl font-bold text-slate-900 dark:text-dark-text">🚛 DumpTruck</h1>
-            </div>
-            
-            <div class="flex items-center gap-3">
-                <button onclick="changeMonth(-1)" class="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition text-slate-600 dark:text-slate-300">←</button>
-                <p class="text-lg font-semibold text-slate-700 dark:text-slate-200 min-w-[180px] text-center" id="currentMonthDisplay">Июнь 2026</p>
-                <button onclick="changeMonth(1)" class="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition text-slate-600 dark:text-slate-300">→</button>
-                <button onclick="resetToToday()" class="text-xs bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 px-2 py-1 rounded transition">Сегодня</button>
-            </div>
-            
-            <div class="flex gap-3 flex-wrap items-center">
-                <div class="flex items-center gap-2 mr-2">
-                    <div class="level-container relative flex items-center gap-2 cursor-pointer">
-                        <div class="flex items-center gap-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-1.5 rounded-full font-bold text-sm shadow-lg">
-                            <span>⭐</span>
-                            <span id="userLevel">1</span>
-                        </div>
-                        <div class="level-tooltip absolute right-0 top-full mt-2 w-64 bg-white dark:bg-dark-card rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 p-4 z-50">
-                            <div class="flex justify-between items-center mb-2">
-                                <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">Прогресс уровня</span>
-                                <span class="text-xs text-slate-500 dark:text-slate-400" id="xpText">0/100 XP</span>
+        <!-- Unified Header -->
+        <div class="mb-4">
+            <!-- Top Row: Title + User Controls -->
+            <div class="flex justify-between items-center mb-3">
+                <h1 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-dark-text"> DumpTruck</h1>
+                
+                <!-- Desktop User Controls -->
+                <div class="hidden md:flex gap-3 items-center">
+                    <div class="flex items-center gap-2">
+                        <div class="level-container relative flex items-center gap-2 cursor-pointer">
+                            <div class="flex items-center gap-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-1.5 rounded-full font-bold text-sm shadow-lg">
+                                <span>⭐</span>
+                                <span id="userLevel">1</span>
                             </div>
-                            <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2.5 overflow-hidden">
-                                <div id="xpBar" class="xp-bar bg-gradient-to-r from-purple-500 to-pink-500 h-2.5 rounded-full" style="width: 0%"></div>
-                            </div>
-                            <div class="mt-2 text-xs text-slate-500 dark:text-slate-400">
-                                <span id="xpToNext">100 XP</span> до следующего уровня
+                            <div class="level-tooltip absolute right-0 top-full mt-2 w-64 bg-white dark:bg-dark-card rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 p-4 z-50">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">Прогресс уровня</span>
+                                    <span class="text-xs text-slate-500 dark:text-slate-400" id="xpText">0/100 XP</span>
+                                </div>
+                                <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2.5 overflow-hidden">
+                                    <div id="xpBar" class="xp-bar bg-gradient-to-r from-purple-500 to-pink-500 h-2.5 rounded-full" style="width: 0%"></div>
+                                </div>
+                                <div class="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                                    <span id="xpToNext">100 XP</span> до следующего уровня
+                                </div>
                             </div>
                         </div>
+                        <img id="userAvatar" src="" class="w-8 h-8 rounded-full border border-slate-300 dark:border-slate-600">
+                        <span id="userName" class="text-sm font-medium text-slate-600 dark:text-slate-300"></span>
                     </div>
-                    <img id="userAvatar" src="" class="w-8 h-8 rounded-full border border-slate-300 dark:border-slate-600">
-                    <span id="userName" class="text-sm font-medium text-slate-600 dark:text-slate-300"></span>
+                    <button onclick="toggleDarkMode()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 p-2.5 rounded-lg transition" title="Тема">
+                        <span id="themeIcon">🌙</span>
+                    </button>
+                    <button onclick="openAddModal()" class="bg-blue-600 hover:bg-blue-700 text-white w-10 h-10 rounded-lg font-medium transition shadow-sm flex items-center justify-center text-xl" title="Добавить">+</button>
+                    <button onclick="signOutUser()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 px-3 py-2.5 rounded-lg font-medium transition" title="Выйти">🚪</button>
                 </div>
-                <button onclick="toggleDarkMode()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 p-2.5 rounded-lg transition" title="Тема">
-                    <span id="themeIcon">🌙</span>
-                </button>
-                <button onclick="openAddModal()" class="bg-blue-600 hover:bg-blue-700 text-white w-10 h-10 rounded-lg font-medium transition shadow-sm flex items-center justify-center text-xl" title="Добавить">+</button>
-                <button onclick="signOutUser()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 px-3 py-2.5 rounded-lg font-medium transition" title="Выйти">🚪</button>
-            </div>
-        </div>
-
-        <!-- Header for Mobile -->
-        <div class="md:hidden flex flex-col gap-3 mb-4">
-            <div class="flex justify-between items-center">
-                <h1 class="text-2xl font-bold text-slate-900 dark:text-dark-text">🚛 DumpTruck</h1>
-                <button onclick="toggleMobileMenu()" class="p-2 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200">
+                
+                <!-- Mobile Menu Button -->
+                <button onclick="toggleMobileMenu()" class="md:hidden p-2 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                 </button>
             </div>
             
+            <!-- Month Navigation -->
             <div class="flex items-center gap-3">
                 <button onclick="changeMonth(-1)" class="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition text-slate-600 dark:text-slate-300">←</button>
-                <p class="text-base font-semibold text-slate-700 dark:text-slate-200 min-w-[140px] text-center" id="currentMonthDisplayMobile">Июнь 2026</p>
+                <p class="text-base md:text-lg font-semibold text-slate-700 dark:text-slate-200 min-w-[140px] md:min-w-[180px] text-center" id="currentMonthDisplay">Июнь 2026</p>
                 <button onclick="changeMonth(1)" class="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition text-slate-600 dark:text-slate-300">→</button>
                 <button onclick="resetToToday()" class="text-xs bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 px-2 py-1 rounded transition">Сегодня</button>
             </div>
             
             <!-- Mobile Dropdown Menu -->
-            <div id="mobileMenu" class="dropdown-menu bg-white dark:bg-dark-card rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-3 space-y-2">
+            <div id="mobileMenu" class="dropdown-menu md:hidden bg-white dark:bg-dark-card rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-3 space-y-2 mt-3">
                 <div class="flex items-center gap-3 pb-3 border-b border-slate-200 dark:border-slate-700">
                     <img id="mobileUserAvatar" src="" class="w-10 h-10 rounded-full border border-slate-300 dark:border-slate-600">
                     <div class="flex-1">
@@ -240,7 +230,7 @@
                     </button>
                 </div>
                 <button onclick="signOutUser()" class="w-full flex items-center justify-center gap-2 p-2.5 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400">
-                    <span>🚪</span>
+                    <span></span>
                     <span class="text-sm">Выйти</span>
                 </button>
             </div>
@@ -260,14 +250,14 @@
         <!-- Activities Table -->
         <div class="bg-white dark:bg-dark-card rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div class="p-2 md:p-3 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                <span>⠿</span> <span class="hidden md:inline">Перетащи для изменения порядка</span><span class="md:hidden">↑↓ для изменения порядка</span>
+                <span></span> <span class="hidden md:inline">Перетащи для изменения порядка</span><span class="md:hidden">↑↓ для изменения порядка</span>
             </div>
             <div class="overflow-x-auto no-scrollbar" id="tableContainer">
                 <table class="w-full border-collapse min-w-max">
                     <thead>
                         <tr class="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] md:text-xs uppercase tracking-wider" id="tableHeader">
-                            <th class="p-2 md:p-4 border-b border-r border-slate-200 dark:border-slate-700 text-left sticky-col bg-slate-50 dark:bg-slate-800 min-w-[120px] md:min-w-[150px]">Ворк</th>
-                            <th class="p-2 md:p-4 border-b border-slate-200 dark:border-slate-700 text-center sticky-col-right bg-slate-50 dark:bg-slate-800 min-w-[80px] md:min-w-[100px]">Серия </th>
+                            <th class="p-2 md:p-4 border-b border-r border-slate-200 dark:border-slate-700 text-left sticky-col bg-slate-50 dark:bg-slate-800 min-w-[120px] md:min-w-[150px]">Активность</th>
+                            <th class="p-2 md:p-4 border-b border-slate-200 dark:border-slate-700 text-center sticky-col-right bg-slate-50 dark:bg-slate-800 min-w-[80px] md:min-w-[100px]">Серия 🔥</th>
                         </tr>
                         <tr id="weekdaysRow" class="bg-slate-50 dark:bg-slate-800 text-[8px] md:text-[10px] text-slate-400 dark:text-slate-500">
                             <th class="p-1 border-b border-r border-slate-200 dark:border-slate-700 sticky-col bg-slate-50 dark:bg-slate-800"></th>
@@ -287,10 +277,10 @@
     <!-- Add Activity Modal -->
     <div id="modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="bg-white dark:bg-dark-card rounded-xl shadow-2xl w-full max-w-md p-6 border border-slate-200 dark:border-slate-700 max-h-[90vh] overflow-y-auto">
-            <h3 class="text-xl font-bold mb-4 text-slate-900 dark:text-dark-text">Планируем...</h3>
+            <h3 class="text-xl font-bold mb-4 text-slate-900 dark:text-dark-text">Новая активность</h3>
             <form id="habitForm" class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"></label>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Название</label>
                     <input type="text" id="activityName" placeholder="Например: Чтение, Спорт..." required class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-dark-text p-2.5 focus:ring-2 focus:ring-blue-500 outline-none">
                 </div>
                 
@@ -306,13 +296,13 @@
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🏃')">🏃</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🏋️')">🏋️</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('😴')">😴</button>
-                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🧘')">🧘</button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('')">🧘</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🍎')">🍎</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('📚')"></button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('📝')">📝</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('💻')">💻</button>
-                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('💼')">💼</button>
-                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🎯')">🎯</button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('')">💼</button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🎯')"></button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('💪')">💪</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🔥')">🔥</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('⭐')">⭐</button>
@@ -320,10 +310,10 @@
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🎵')">🎵</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🧹')">🧹</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🍳')">🍳</button>
-                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🌱')">🌱</button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('')">🌱</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('✅')">✅</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('💰')">💰</button>
-                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🎓')">🎓</button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('')">🎓</button>
                     </div>
                 </div>
                 
@@ -392,9 +382,9 @@
                     <div class="grid grid-cols-5 gap-2">
                         <label class="cursor-pointer"><input type="radio" name="mood" value="1" class="sr-only peer"><div class="text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-red-500 peer-checked:border-red-500 peer-checked:text-white transition">😢<div class="text-[11px] mt-1 leading-tight">Плохо</div></div></label>
                         <label class="cursor-pointer"><input type="radio" name="mood" value="2" class="sr-only peer"><div class="text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-orange-500 peer-checked:border-orange-500 peer-checked:text-white transition">😕<div class="text-[11px] mt-1 leading-tight">Так себе</div></div></label>
-                        <label class="cursor-pointer"><input type="radio" name="mood" value="3" class="sr-only peer"><div class="text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-yellow-500 peer-checked:border-yellow-500 peer-checked:text-white transition"><div class="text-[11px] mt-1 leading-tight">Норм</div></div></label>
+                        <label class="cursor-pointer"><input type="radio" name="mood" value="3" class="sr-only peer"><div class="text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-yellow-500 peer-checked:border-yellow-500 peer-checked:text-white transition">😐<div class="text-[11px] mt-1 leading-tight">Норм</div></div></label>
                         <label class="cursor-pointer"><input type="radio" name="mood" value="4" class="sr-only peer"><div class="text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-lime-500 peer-checked:border-lime-500 peer-checked:text-white transition">🙂<div class="text-[11px] mt-1 leading-tight">Хорошо</div></div></label>
-                        <label class="cursor-pointer"><input type="radio" name="mood" value="5" class="sr-only peer"><div class="text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-green-500 peer-checked:border-green-500 peer-checked:text-white transition"><div class="text-[11px] mt-1 leading-tight">Отлично</div></div></label>
+                        <label class="cursor-pointer"><input type="radio" name="mood" value="5" class="sr-only peer"><div class="text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-green-500 peer-checked:border-green-500 peer-checked:text-white transition">😄<div class="text-[11px] mt-1 leading-tight">Отлично</div></div></label>
                     </div>
                 </div>
                 <div>
@@ -434,7 +424,16 @@
         let xpEarned = {};
         const today = new Date();
         let viewYear = today.getFullYear(), viewMonth = today.getMonth();
-        const todayStr = today.toISOString().split('T')[0];
+
+        // Local date string function (fixes timezone issues)
+        function getLocalDateStr(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        const todayStr = getLocalDateStr(today);
 
         function getXPForLevel(level) {
             return level * 100;
@@ -618,14 +617,24 @@
 
         function calculateStreak(habitId) {
             let streak = 0;
+            const todayLocal = getLocalDateStr(today);
+            
             for (let i = 0; i < 365; i++) {
-                const d = new Date(); d.setDate(d.getDate() - i);
-                const dateStr = d.toISOString().split('T')[0];
-                if (d > today) continue;
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                const dateStr = getLocalDateStr(d);
+                
+                if (dateStr > todayLocal) continue;
+                
                 const habit = habits.find(h => h.id === habitId);
                 if (habit && !isHabitActive(habit, d)) continue;
-                if (completions[`${habitId}-${dateStr}`]) streak++;
-                else { if (dateStr === todayStr && i === 0) continue; break; }
+                
+                if (completions[`${habitId}-${dateStr}`]) {
+                    streak++;
+                } else {
+                    if (dateStr === todayLocal && i === 0) continue;
+                    break;
+                }
             }
             return streak;
         }
@@ -684,10 +693,6 @@
             const monthText = `${monthNames[viewMonth]} ${viewYear}`;
             
             document.getElementById('currentMonthDisplay').textContent = monthText;
-            const mobileMonthDisplay = document.getElementById('currentMonthDisplayMobile');
-            if (mobileMonthDisplay) {
-                mobileMonthDisplay.textContent = monthText;
-            }
 
             while (headerRow.children.length > 2) headerRow.removeChild(headerRow.children[1]);
             while (weekdaysRow.children.length > 2) weekdaysRow.removeChild(weekdaysRow.children[1]);
@@ -720,7 +725,7 @@
                 const isToday = (viewYear === today.getFullYear() && viewMonth === today.getMonth() && day === today.getDate());
                 const isFuture = date > today;
                 const mood = moodsData[dateStr];
-                const moodEmojis = ['😢', '😢', '😕', '😐', '🙂', '😄'];
+                const moodEmojis = ['', '😢', '😕', '😐', '🙂', '😄'];
                 const moodColors = ['', 'bg-red-400', 'bg-orange-400', 'bg-yellow-400', 'bg-lime-400', 'bg-green-500'];
                 const weekday = getWeekdayShort(date);
                 const weekend = isWeekend(date);
@@ -786,14 +791,13 @@
 
                     const streak = calculateStreak(habit.id);
 
-                    const scheduleLabel = getScheduleLabel(habit);
                     const nameTd = document.createElement('td');
                     nameTd.className = `p-2 md:p-3 border-r border-slate-200 dark:border-slate-700 sticky-col bg-white dark:bg-dark-card font-medium text-slate-800 dark:text-dark-text flex items-center gap-1 md:gap-2 min-w-[120px] md:min-w-[150px] mobile-cell`;
                     nameTd.innerHTML = `
-                        <span class="cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 text-base md:text-lg hidden md:block"></span>
+                        <span class="cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 text-base md:text-lg hidden md:block">⠿</span>
                         <div class="flex-1 min-w-0 flex items-center gap-1 md:gap-2">
-                            <span class="text-xl md:text-2xl flex-shrink-0">${habit.emoji || '📌'}</span>
-                            <span class="truncate mobile-text-xs">${habit.name || 'Ворк'}</span>
+                            <span class="text-xl md:text-2xl flex-shrink-0">${habit.emoji || ''}</span>
+                            <span class="truncate mobile-text-xs">${habit.name || 'Активность'}</span>
                         </div>
                         <div class="flex md:hidden gap-1">
                             <button onclick="moveHabit('${habit.id}', -1)" class="text-slate-400 hover:text-blue-500 text-xs px-1">↑</button>
@@ -821,7 +825,7 @@
                             td.innerHTML = '<span class="text-slate-300 dark:text-slate-600 text-[8px] md:text-xs">—</span>';
                         } else if (isFuture) {
                             td.className += ' future-cell opacity-60';
-                            td.innerHTML = '<span class="text-slate-400 dark:text-slate-600 text-[8px] md:text-xs">🔒</span>';
+                            td.innerHTML = '<span class="text-slate-400 dark:text-slate-600 text-[8px] md:text-xs"></span>';
                         } else {
                             const btn = document.createElement('button');
                             btn.className = `cell-checkbox w-7 h-7 md:w-8 md:h-8 rounded-md border-2 flex items-center justify-center text-base md:text-lg mx-auto mobile-checkbox ${isCompleted ? 'cell-checked border-emerald-600 text-white' : 'border-slate-200 dark:border-slate-600 text-transparent hover:border-slate-400 dark:hover:border-slate-500'}`;
@@ -873,7 +877,7 @@
 
         window.deleteHabit = async (habitId) => {
             if (!currentUser) return;
-            if (confirm('Удалить эту запись и всю историю?')) {
+            if (confirm('Удалить эту активность и всю историю?')) {
                 await deleteDoc(doc(db, "users", currentUser.uid, "habits", habitId));
             }
         };
