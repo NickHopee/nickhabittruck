@@ -2,7 +2,7 @@
 <html lang="ru" class="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DumpTruck</title>
     <link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚛</text></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -13,21 +13,21 @@
         }
     </script>
     <style>
-        body { font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
         .no-scrollbar::-webkit-scrollbar { height: 8px; width: 8px; }
         .no-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
         .no-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         .dark .no-scrollbar::-webkit-scrollbar-track { background: #1e293b; }
         .dark .no-scrollbar::-webkit-scrollbar-thumb { background: #475569; }
         .cell-checkbox { transition: all 0.2s ease; }
-        .cell-checkbox:hover { transform: scale(1.1); }
+        .cell-checkbox:active { transform: scale(0.95); }
         .cell-checked { background-color: #10b981; border-color: #059669; }
         .loader { border-top-color: #3498db; animation: spinner 1.5s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .dragging { opacity: 0.4; background: #e0f2fe !important; }
         .drag-over { border-top: 3px solid #3b82f6 !important; }
         .mood-cell { transition: all 0.2s; cursor: pointer; }
-        .mood-cell:hover { transform: scale(1.15); }
+        .mood-cell:active { transform: scale(0.9); }
         .inactive-cell { background: repeating-linear-gradient(45deg, #f1f5f9, #f1f5f9 5px, #e2e8f0 5px, #e2e8f0 10px); }
         .dark .inactive-cell { background: repeating-linear-gradient(45deg, #1e293b, #1e293b 5px, #334155 5px, #334155 10px); }
         .future-cell {
@@ -39,15 +39,16 @@
         .emoji-btn { transition: all 0.2s; cursor: pointer; }
         .emoji-btn:hover { transform: scale(1.15); }
         
-        /* Level tooltip */
         .level-tooltip {
             visibility: hidden;
             opacity: 0;
             transition: opacity 0.3s;
         }
-        .level-container:hover .level-tooltip {
-            visibility: visible;
-            opacity: 1;
+        @media (min-width: 768px) {
+            .level-container:hover .level-tooltip {
+                visibility: visible;
+                opacity: 1;
+            }
         }
         .xp-bar {
             transition: width 0.5s ease-in-out;
@@ -60,9 +61,41 @@
             50% { transform: scale(1.2); }
             100% { transform: scale(1); }
         }
+        
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .mobile-hide-sticky {
+                position: static !important;
+                z-index: auto !important;
+            }
+            .mobile-cell {
+                min-width: 36px !important;
+                padding: 4px 2px !important;
+            }
+            .mobile-checkbox {
+                width: 28px !important;
+                height: 28px !important;
+            }
+            .mobile-text-xs {
+                font-size: 10px !important;
+            }
+        }
+        
+        /* Dropdown menu */
+        .dropdown-menu {
+            transform: translateY(-10px);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.2s;
+        }
+        .dropdown-menu.active {
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
     </style>
 </head>
-<body class="bg-slate-50 dark:bg-dark-bg text-slate-800 dark:text-dark-text transition-colors duration-300 p-4 md:p-8">
+<body class="bg-slate-50 dark:bg-dark-bg text-slate-800 dark:text-dark-text transition-colors duration-300 p-2 md:p-4">
 
     <div id="loadingScreen" class="fixed inset-0 bg-white dark:bg-dark-bg z-50 flex flex-col items-center justify-center">
         <div class="loader ease-linear rounded-full border-4 border-t-4 border-slate-200 dark:border-slate-700 h-12 w-12 mb-4"></div>
@@ -82,26 +115,32 @@
     </div>
 
     <div id="appScreen" class="hidden max-w-7xl mx-auto">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-            <div>
-                <h1 class="text-3xl font-bold text-slate-900 dark:text-dark-text">🚛 DumpTruck</h1>
-                <div class="flex items-center gap-3 mt-2">
-                    <button onclick="changeMonth(-1)" class="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition text-slate-600 dark:text-slate-300">←</button>
-                    <p class="text-lg font-semibold text-slate-700 dark:text-slate-200 min-w-[180px] text-center" id="currentMonthDisplay">Июнь 2026</p>
-                    <button onclick="changeMonth(1)" class="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition text-slate-600 dark:text-slate-300">→</button>
-                    <button onclick="resetToToday()" class="text-xs bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 px-2 py-1 rounded transition ml-2">Сегодня</button>
-                </div>
+        <!-- Header -->
+        <div class="flex flex-col gap-3 mb-4">
+            <div class="flex justify-between items-center">
+                <h1 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-dark-text">🚛 DumpTruck</h1>
+                <!-- Mobile Menu Button -->
+                <button onclick="toggleMobileMenu()" class="md:hidden p-2 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </button>
             </div>
-            <div class="flex gap-3 flex-wrap items-center">
+            
+            <!-- Month Navigation -->
+            <div class="flex items-center gap-3">
+                <button onclick="changeMonth(-1)" class="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition text-slate-600 dark:text-slate-300">←</button>
+                <p class="text-base md:text-lg font-semibold text-slate-700 dark:text-slate-200 min-w-[140px] md:min-w-[180px] text-center" id="currentMonthDisplay">Июнь 2026</p>
+                <button onclick="changeMonth(1)" class="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition text-slate-600 dark:text-slate-300">→</button>
+                <button onclick="resetToToday()" class="text-xs bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 px-2 py-1 rounded transition">Сегодня</button>
+            </div>
+            
+            <!-- Desktop Menu -->
+            <div class="hidden md:flex gap-3 flex-wrap items-center">
                 <div class="flex items-center gap-2 mr-2">
-                    <!-- Level Container with Tooltip -->
                     <div class="level-container relative flex items-center gap-2 cursor-pointer">
                         <div class="flex items-center gap-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-1.5 rounded-full font-bold text-sm shadow-lg">
                             <span>⭐</span>
                             <span id="userLevel">1</span>
                         </div>
-                        
-                        <!-- Tooltip -->
                         <div class="level-tooltip absolute right-0 top-full mt-2 w-64 bg-white dark:bg-dark-card rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 p-4 z-50">
                             <div class="flex justify-between items-center mb-2">
                                 <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">Прогресс уровня</span>
@@ -115,7 +154,6 @@
                             </div>
                         </div>
                     </div>
-                    
                     <img id="userAvatar" src="" class="w-8 h-8 rounded-full border border-slate-300 dark:border-slate-600">
                     <span id="userName" class="text-sm font-medium text-slate-600 dark:text-slate-300 hidden md:block"></span>
                 </div>
@@ -125,40 +163,70 @@
                 <button onclick="openAddModal()" class="bg-blue-600 hover:bg-blue-700 text-white w-10 h-10 rounded-lg font-medium transition shadow-sm flex items-center justify-center text-xl" title="Добавить">+</button>
                 <button onclick="signOutUser()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 px-3 py-2.5 rounded-lg font-medium transition" title="Выйти">🚪</button>
             </div>
+            
+            <!-- Mobile Dropdown Menu -->
+            <div id="mobileMenu" class="dropdown-menu md:hidden bg-white dark:bg-dark-card rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-3 space-y-2">
+                <div class="flex items-center gap-3 pb-3 border-b border-slate-200 dark:border-slate-700">
+                    <img id="mobileUserAvatar" src="" class="w-10 h-10 rounded-full border border-slate-300 dark:border-slate-600">
+                    <div class="flex-1">
+                        <div id="mobileUserName" class="font-medium text-slate-900 dark:text-dark-text"></div>
+                        <div class="flex items-center gap-2 mt-1">
+                            <div class="flex items-center gap-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-2 py-0.5 rounded-full text-xs font-bold">
+                                <span>⭐</span>
+                                <span id="mobileUserLevel">1</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="toggleDarkMode(); toggleMobileMenu()" class="flex-1 flex items-center justify-center gap-2 p-2.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200">
+                        <span id="mobileThemeIcon">🌙</span>
+                        <span class="text-sm">Тема</span>
+                    </button>
+                    <button onclick="openAddModal(); toggleMobileMenu()" class="flex-1 flex items-center justify-center gap-2 p-2.5 rounded-lg bg-blue-600 text-white">
+                        <span class="text-xl">+</span>
+                        <span class="text-sm">Добавить</span>
+                    </button>
+                </div>
+                <button onclick="signOutUser()" class="w-full flex items-center justify-center gap-2 p-2.5 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400">
+                    <span>🚪</span>
+                    <span class="text-sm">Выйти</span>
+                </button>
+            </div>
         </div>
 
         <!-- Mood Diary -->
-        <div class="bg-white dark:bg-dark-card rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 mb-6">
-            <h3 class="font-bold text-slate-800 dark:text-dark-text flex items-center gap-2 mb-4">
-                <span class="text-2xl">😊</span>
+        <div class="bg-white dark:bg-dark-card rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-3 md:p-4 mb-4 md:mb-6">
+            <h3 class="font-bold text-slate-800 dark:text-dark-text flex items-center gap-2 mb-3 md:mb-4 text-base">
+                <span class="text-xl md:text-2xl">😊</span>
                 <span>Настроение</span>
             </h3>
             <div class="overflow-x-auto no-scrollbar" id="moodContainer">
-                <div class="flex gap-2 min-w-max pb-2" id="moodRow"></div>
+                <div class="flex gap-1.5 md:gap-2 min-w-max pb-2" id="moodRow"></div>
             </div>
         </div>
 
         <!-- Activities Table -->
         <div class="bg-white dark:bg-dark-card rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div class="p-3 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                <span>⠿</span> Перетащи для изменения порядка
+            <div class="p-2 md:p-3 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                <span>⠿</span> <span class="hidden md:inline">Перетащи для изменения порядка</span><span class="md:hidden">↑↓ для изменения порядка</span>
             </div>
             <div class="overflow-x-auto no-scrollbar" id="tableContainer">
                 <table class="w-full border-collapse min-w-max">
                     <thead>
-                        <tr class="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs uppercase tracking-wider" id="tableHeader">
-                            <th class="p-4 border-b border-r border-slate-200 dark:border-slate-700 text-left sticky left-0 bg-slate-50 dark:bg-slate-800 z-20 min-w-[150px]">Активность</th>
-                            <th class="p-4 border-b border-slate-200 dark:border-slate-700 text-center sticky right-0 bg-slate-50 dark:bg-slate-800 z-20 min-w-[100px]">Серия 🔥</th>
+                        <tr class="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] md:text-xs uppercase tracking-wider" id="tableHeader">
+                            <th class="p-2 md:p-4 border-b border-r border-slate-200 dark:border-slate-700 text-left mobile-hide-sticky bg-slate-50 dark:bg-slate-800 z-20 min-w-[100px] md:min-w-[150px]">Активность</th>
+                            <th class="p-2 md:p-4 border-b border-slate-200 dark:border-slate-700 text-center mobile-hide-sticky bg-slate-50 dark:bg-slate-800 z-20 min-w-[60px] md:min-w-[100px]">Серия 🔥</th>
                         </tr>
-                        <tr id="weekdaysRow" class="bg-slate-50 dark:bg-slate-800 text-[10px] text-slate-400 dark:text-slate-500">
-                            <th class="p-1 border-b border-r border-slate-200 dark:border-slate-700 sticky left-0 bg-slate-50 dark:bg-slate-800 z-20"></th>
-                            <th class="p-1 border-b border-slate-200 dark:border-slate-700 sticky right-0 bg-slate-50 dark:bg-slate-800 z-20"></th>
+                        <tr id="weekdaysRow" class="bg-slate-50 dark:bg-slate-800 text-[8px] md:text-[10px] text-slate-400 dark:text-slate-500">
+                            <th class="p-1 border-b border-r border-slate-200 dark:border-slate-700 mobile-hide-sticky bg-slate-50 dark:bg-slate-800 z-20"></th>
+                            <th class="p-1 border-b border-slate-200 dark:border-slate-700 mobile-hide-sticky bg-slate-50 dark:bg-slate-800 z-20"></th>
                         </tr>
                     </thead>
-                    <tbody id="tableBody" class="text-sm"></tbody>
+                    <tbody id="tableBody" class="text-xs md:text-sm"></tbody>
                 </table>
             </div>
-            <div id="emptyState" class="hidden p-12 text-center text-slate-400 dark:text-slate-500">
+            <div id="emptyState" class="hidden p-8 md:p-12 text-center text-slate-400 dark:text-slate-500">
                 <p class="text-lg mb-2">🌱 Пока нет активностей</p>
                 <p>Нажми +, чтобы начать!</p>
             </div>
@@ -182,7 +250,6 @@
                         <input type="hidden" id="selectedEmojiInput" value="📌">
                     </div>
                     
-                    <!-- Emoji Picker -->
                     <div id="emojiPicker" class="hidden grid grid-cols-6 gap-1 mb-3 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('💧')">💧</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🏃')">🏃</button>
@@ -194,18 +261,18 @@
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('📝')">📝</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('💻')">💻</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('💼')">💼</button>
-                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🎯')"></button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🎯')">🎯</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('💪')">💪</button>
-                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🔥')"></button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🔥')">🔥</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('⭐')">⭐</button>
-                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🎨')"></button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🎨')">🎨</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🎵')">🎵</button>
-                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🧹')"></button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🧹')">🧹</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🍳')">🍳</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🌱')"></button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('✅')">✅</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('💰')">💰</button>
-                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🎓')"></button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🎓')">🎓</button>
                     </div>
                 </div>
                 
@@ -317,10 +384,15 @@
         let viewYear = today.getFullYear(), viewMonth = today.getMonth();
         const todayStr = today.toISOString().split('T')[0];
 
-        // XP System: Level * 100 XP needed for next level
         function getXPForLevel(level) {
             return level * 100;
         }
+
+        // Mobile Menu Toggle
+        window.toggleMobileMenu = () => {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('active');
+        };
 
         // Dark Mode
         window.toggleDarkMode = () => {
@@ -329,6 +401,7 @@
             html.classList.toggle('dark', !isDark);
             html.classList.toggle('light', isDark);
             document.getElementById('themeIcon').textContent = isDark ? '🌙' : '☀️';
+            document.getElementById('mobileThemeIcon').textContent = isDark ? '🌙' : '☀️';
             localStorage.setItem('theme', isDark ? 'light' : 'dark');
         };
         const savedTheme = localStorage.getItem('theme') || 'light';
@@ -336,9 +409,9 @@
             document.documentElement.classList.remove('light');
             document.documentElement.classList.add('dark');
             document.getElementById('themeIcon').textContent = '☀️';
+            document.getElementById('mobileThemeIcon').textContent = '☀️';
         }
 
-        // Auth
         window.signIn = () => signInWithPopup(auth, provider).catch(e => alert("Ошибка входа: " + e.message));
         window.signOutUser = () => signOut(auth).then(() => location.reload());
 
@@ -349,9 +422,10 @@
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('appScreen').classList.remove('hidden');
                 document.getElementById('userName').textContent = user.displayName;
+                document.getElementById('mobileUserName').textContent = user.displayName;
                 document.getElementById('userAvatar').src = user.photoURL || 'https://via.placeholder.com/32';
+                document.getElementById('mobileUserAvatar').src = user.photoURL || 'https://via.placeholder.com/32';
                 
-                // Load user level and XP
                 await loadUserData();
                 subscribeToData();
             } else {
@@ -378,22 +452,16 @@
             userXP += amount;
             const xpNeeded = getXPForLevel(userLevel);
             
-            // Level up check
             if (userXP >= xpNeeded && userLevel < 100) {
                 userXP -= xpNeeded;
                 userLevel++;
-                
-                // Show level up notification
                 showLevelUpNotification(userLevel);
-                
-                // Save new level
                 await setDoc(doc(db, "users", currentUser.uid, "profile", "stats"), {
                     level: userLevel,
                     xp: userXP,
                     updatedAt: serverTimestamp()
                 });
             } else {
-                // Just update XP
                 await setDoc(doc(db, "users", currentUser.uid, "profile", "stats"), {
                     level: userLevel,
                     xp: userXP,
@@ -406,6 +474,7 @@
 
         function updateLevelDisplay() {
             document.getElementById('userLevel').textContent = userLevel;
+            document.getElementById('mobileUserLevel').textContent = userLevel;
             const xpNeeded = getXPForLevel(userLevel);
             const xpPercent = Math.min((userXP / xpNeeded) * 100, 100);
             
@@ -415,7 +484,6 @@
         }
 
         function showLevelUpNotification(newLevel) {
-            // Create notification element
             const notification = document.createElement('div');
             notification.className = 'fixed top-4 right-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-4 rounded-xl shadow-2xl z-50 level-up-animation';
             notification.innerHTML = `
@@ -428,10 +496,7 @@
                 </div>
             `;
             document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
+            setTimeout(() => notification.remove(), 3000);
         }
 
         function subscribeToData() {
@@ -507,10 +572,8 @@
             return streak;
         }
 
-        // Emoji Picker
         window.toggleEmojiPicker = () => {
-            const picker = document.getElementById('emojiPicker');
-            picker.classList.toggle('hidden');
+            document.getElementById('emojiPicker').classList.toggle('hidden');
         };
 
         window.selectEmoji = (emoji) => {
@@ -521,6 +584,7 @@
 
         let draggedHabitId = null;
         function handleDragStart(e, habitId) {
+            if (window.innerWidth < 768) return; // Disable drag on mobile
             draggedHabitId = habitId;
             e.currentTarget.classList.add('dragging');
             e.dataTransfer.effectAllowed = 'move';
@@ -574,17 +638,16 @@
                 const weekend = isWeekend(date);
                 
                 const th = document.createElement('th');
-                th.className = `p-2 border-b border-slate-200 dark:border-slate-700 text-center min-w-[44px] select-none ${isToday ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-bold' : ''}`;
+                th.className = `p-1 md:p-2 border-b border-slate-200 dark:border-slate-700 text-center min-w-[36px] md:min-w-[44px] select-none mobile-cell ${isToday ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-bold' : ''}`;
                 th.textContent = day;
                 headerRow.insertBefore(th, headerRow.lastElementChild);
                 
                 const wdTh = document.createElement('th');
-                wdTh.className = `p-1 border-b border-slate-200 dark:border-slate-700 text-center min-w-[44px] ${isToday ? 'bg-blue-50 dark:bg-blue-900/30' : ''} ${weekend ? 'text-red-400 dark:text-red-500' : 'text-slate-400 dark:text-slate-500'}`;
+                wdTh.className = `p-0.5 md:p-1 border-b border-slate-200 dark:border-slate-700 text-center min-w-[36px] md:min-w-[44px] mobile-cell ${isToday ? 'bg-blue-50 dark:bg-blue-900/30' : ''} ${weekend ? 'text-red-400 dark:text-red-500' : 'text-slate-400 dark:text-slate-500'}`;
                 wdTh.textContent = weekday;
                 weekdaysRow.insertBefore(wdTh, weekdaysRow.lastElementChild);
             });
 
-            // Mood Row with future date blocking and auto-scroll
             const moodRow = document.getElementById('moodRow');
             moodRow.innerHTML = '';
             days.forEach(day => {
@@ -599,28 +662,28 @@
                 const weekend = isWeekend(date);
                 
                 const cell = document.createElement('div');
-                cell.className = `flex flex-col items-center min-w-[50px]`;
+                cell.className = `flex flex-col items-center min-w-[40px] md:min-w-[50px]`;
                 cell.id = `mood-cell-${day}`;
                 
                 const dateDiv = document.createElement('div');
-                dateDiv.className = `flex flex-col items-center mb-1.5 ${isToday ? 'text-blue-600 dark:text-blue-400 font-bold' : 'text-slate-500 dark:text-slate-400'}`;
-                dateDiv.innerHTML = `<span class="text-[10px] ${weekend ? 'text-red-400 dark:text-red-500' : ''}">${weekday}</span><span class="text-xs font-medium">${day}</span>`;
+                dateDiv.className = `flex flex-col items-center mb-1 ${isToday ? 'text-blue-600 dark:text-blue-400 font-bold' : 'text-slate-500 dark:text-slate-400'}`;
+                dateDiv.innerHTML = `<span class="text-[8px] md:text-[10px] ${weekend ? 'text-red-400 dark:text-red-500' : ''}">${weekday}</span><span class="text-[10px] md:text-xs font-medium">${day}</span>`;
                 cell.appendChild(dateDiv);
                 
                 const btn = document.createElement('button');
                 
                 if (isFuture) {
-                    btn.className = `w-10 h-10 rounded-full flex items-center justify-center text-lg bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed`;
+                    btn.className = `w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-base md:text-lg bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed`;
                     btn.innerHTML = '<span>🔒</span>';
                     btn.disabled = true;
                 } else {
                     btn.onclick = () => openMoodModal(dateStr);
                     
                     if (mood) {
-                        btn.className = `mood-cell w-10 h-10 rounded-full flex items-center justify-center text-xl ${moodColors[mood.mood]} text-white shadow-md hover:shadow-lg transition`;
+                        btn.className = `mood-cell w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-lg md:text-xl ${moodColors[mood.mood]} text-white shadow-md hover:shadow-lg transition`;
                         btn.textContent = moodEmojis[mood.mood];
                     } else {
-                        btn.className = `mood-cell w-10 h-10 rounded-full flex items-center justify-center text-lg border-2 border-dashed ${isToday ? 'border-blue-400 dark:border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-800'} hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition`;
+                        btn.className = `mood-cell w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-sm md:text-lg border-2 border-dashed ${isToday ? 'border-blue-400 dark:border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-800'} hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition`;
                         btn.innerHTML = '<span class="text-slate-400 dark:text-slate-500 text-xs">+</span>';
                     }
                 }
@@ -629,7 +692,6 @@
                 moodRow.appendChild(cell);
             });
 
-            // Auto-scroll to current day in mood row
             setTimeout(() => {
                 const todayCell = document.getElementById(`mood-cell-${today.getDate()}`);
                 if (todayCell && viewYear === today.getFullYear() && viewMonth === today.getMonth()) {
@@ -646,32 +708,34 @@
                 habits.forEach((habit) => {
                     const tr = document.createElement('tr');
                     tr.className = 'hover:bg-slate-50 dark:hover:bg-slate-800/50 transition border-b border-slate-100 dark:border-slate-800 last:border-0';
-                    tr.draggable = true;
-                    tr.dataset.habitId = habit.id;
                     
-                    tr.addEventListener('dragstart', (e) => handleDragStart(e, habit.id));
-                    tr.addEventListener('dragend', handleDragEnd);
-                    tr.addEventListener('dragover', handleDragOver);
-                    tr.addEventListener('dragenter', (e) => handleDragEnter(e, tr));
-                    tr.addEventListener('dragleave', (e) => handleDragLeave(e, tr));
-                    tr.addEventListener('drop', (e) => handleDrop(e, habit.id));
+                    if (window.innerWidth >= 768) {
+                        tr.draggable = true;
+                        tr.dataset.habitId = habit.id;
+                        tr.addEventListener('dragstart', (e) => handleDragStart(e, habit.id));
+                        tr.addEventListener('dragend', handleDragEnd);
+                        tr.addEventListener('dragover', handleDragOver);
+                        tr.addEventListener('dragenter', (e) => handleDragEnter(e, tr));
+                        tr.addEventListener('dragleave', (e) => handleDragLeave(e, tr));
+                        tr.addEventListener('drop', (e) => handleDrop(e, habit.id));
+                    }
 
                     const streak = calculateStreak(habit.id);
 
                     const scheduleLabel = getScheduleLabel(habit);
                     const nameTd = document.createElement('td');
-                    nameTd.className = `p-3 border-r border-slate-200 dark:border-slate-700 sticky left-0 bg-white dark:bg-dark-card z-10 font-medium text-slate-800 dark:text-dark-text flex items-center gap-2 min-w-[150px]`;
+                    nameTd.className = `p-2 md:p-3 border-r border-slate-200 dark:border-slate-700 mobile-hide-sticky bg-white dark:bg-dark-card z-10 font-medium text-slate-800 dark:text-dark-text flex items-center gap-1 md:gap-2 min-w-[100px] md:min-w-[150px] mobile-cell`;
                     nameTd.innerHTML = `
-                        <span class="cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 text-lg">⠿</span>
-                        <div class="flex-1 min-w-0 flex items-center gap-2">
-                            <span class="text-2xl flex-shrink-0">${habit.emoji || '📌'}</span>
-                            <span class="truncate">${habit.name || 'Активность'}</span>
+                        <span class="cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 text-base md:text-lg hidden md:block">⠿</span>
+                        <div class="flex-1 min-w-0 flex items-center gap-1 md:gap-2">
+                            <span class="text-xl md:text-2xl flex-shrink-0">${habit.emoji || '📌'}</span>
+                            <span class="truncate mobile-text-xs">${habit.name || 'Активность'}</span>
                         </div>
                         <div class="flex md:hidden gap-1">
                             <button onclick="moveHabit('${habit.id}', -1)" class="text-slate-400 hover:text-blue-500 text-xs px-1">↑</button>
                             <button onclick="moveHabit('${habit.id}', 1)" class="text-slate-400 hover:text-blue-500 text-xs px-1">↓</button>
                         </div>
-                        <button onclick="deleteHabit('${habit.id}')" class="text-slate-300 hover:text-red-500 transition px-2 hidden md:block">✕</button>
+                        <button onclick="deleteHabit('${habit.id}')" class="text-slate-300 hover:text-red-500 transition px-1 md:px-2 hidden md:block">✕</button>
                     `;
                     tr.appendChild(nameTd);
 
@@ -686,48 +750,41 @@
                         const hasNote = !!notesData[key];
 
                         const td = document.createElement('td');
-                        td.className = `p-1 text-center border-r border-slate-100 dark:border-slate-800 last:border-0 relative ${isToday ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`;
+                        td.className = `p-0.5 md:p-1 text-center border-r border-slate-100 dark:border-slate-800 last:border-0 relative mobile-cell ${isToday ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`;
                         
                         if (!isActive) {
                             td.className += ' inactive-cell';
-                            td.innerHTML = '<span class="text-slate-300 dark:text-slate-600 text-xs">—</span>';
+                            td.innerHTML = '<span class="text-slate-300 dark:text-slate-600 text-[8px] md:text-xs">—</span>';
                         } else if (isFuture) {
                             td.className += ' future-cell opacity-60';
-                            td.innerHTML = '<span class="text-slate-400 dark:text-slate-600 text-xs">🔒</span>';
+                            td.innerHTML = '<span class="text-slate-400 dark:text-slate-600 text-[8px] md:text-xs">🔒</span>';
                         } else {
                             const btn = document.createElement('button');
-                            btn.className = `cell-checkbox w-8 h-8 rounded-md border-2 flex items-center justify-center text-lg mx-auto ${isCompleted ? 'cell-checked border-emerald-600 text-white' : 'border-slate-200 dark:border-slate-600 text-transparent hover:border-slate-400 dark:hover:border-slate-500'}`;
+                            btn.className = `cell-checkbox w-7 h-7 md:w-8 md:h-8 rounded-md border-2 flex items-center justify-center text-base md:text-lg mx-auto mobile-checkbox ${isCompleted ? 'cell-checked border-emerald-600 text-white' : 'border-slate-200 dark:border-slate-600 text-transparent hover:border-slate-400 dark:hover:border-slate-500'}`;
                             btn.innerHTML = '✓';
                             btn.onclick = () => toggleHabit(habit.id, dateStr, !isCompleted);
                             td.appendChild(btn);
 
                             if (hasNote) {
                                 const noteBtn = document.createElement('button');
-                                noteBtn.className = 'absolute top-0.5 right-0.5 text-[10px] bg-white dark:bg-slate-700 rounded-full shadow-sm border border-slate-200 dark:border-slate-600 w-4 h-4 flex items-center justify-center hover:bg-blue-50 dark:hover:bg-blue-900/30 transition';
+                                noteBtn.className = 'absolute top-0 right-0 text-[8px] md:text-[10px] bg-white dark:bg-slate-700 rounded-full shadow-sm border border-slate-200 dark:border-slate-600 w-3 h-3 md:w-4 md:h-4 flex items-center justify-center hover:bg-blue-50 dark:hover:bg-blue-900/30 transition';
                                 noteBtn.innerHTML = '📝';
                                 noteBtn.onclick = (e) => { e.stopPropagation(); openNoteModal(habit.id, dateStr, habit.name); };
                                 td.appendChild(noteBtn);
-                            } else {
-                                const emptyNoteBtn = document.createElement('button');
-                                emptyNoteBtn.className = 'absolute top-0.5 right-0.5 text-[10px] text-slate-300 dark:text-slate-600 hover:text-blue-500 dark:hover:text-blue-400 transition opacity-0 hover:opacity-100';
-                                emptyNoteBtn.innerHTML = '+';
-                                emptyNoteBtn.onclick = (e) => { e.stopPropagation(); openNoteModal(habit.id, dateStr, habit.name); };
-                                td.appendChild(emptyNoteBtn);
                             }
                         }
                         tr.appendChild(td);
                     });
 
                     const streakTd = document.createElement('td');
-                    streakTd.className = 'p-3 border-l border-slate-200 dark:border-slate-700 text-center sticky right-0 bg-white dark:bg-dark-card z-10 font-bold text-slate-700 dark:text-slate-200 min-w-[100px]';
-                    streakTd.innerHTML = streak > 0 ? `<span class="text-orange-500 dark:text-orange-400">🔥 ${streak}</span>` : '<span class="text-slate-300 dark:text-slate-600">-</span>';
+                    streakTd.className = 'p-2 md:p-3 border-l border-slate-200 dark:border-slate-700 text-center mobile-hide-sticky bg-white dark:bg-dark-card z-10 font-bold text-slate-700 dark:text-slate-200 min-w-[60px] md:min-w-[100px] mobile-cell';
+                    streakTd.innerHTML = streak > 0 ? `<span class="text-orange-500 dark:text-orange-400 mobile-text-xs">🔥 ${streak}</span>` : '<span class="text-slate-300 dark:text-slate-600 mobile-text-xs">-</span>';
                     tr.appendChild(streakTd);
 
                     tbody.appendChild(tr);
                 });
             }
 
-            // Auto-scroll to current day in table
             setTimeout(() => {
                 const todayHeader = Array.from(headerRow.children).find(th => th.textContent.trim() === String(today.getDate()));
                 if (todayHeader && viewYear === today.getFullYear() && viewMonth === today.getMonth()) {
