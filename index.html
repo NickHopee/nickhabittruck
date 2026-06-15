@@ -27,7 +27,7 @@
         .dragging { opacity: 0.4; background: #e0f2fe !important; }
         .drag-over { border-top: 3px solid #3b82f6 !important; }
         .mood-cell { transition: all 0.2s; cursor: pointer; }
-        .mood-cell:hover { transform: scale(1.2); }
+        .mood-cell:hover { transform: scale(1.15); }
         .inactive-cell { background: repeating-linear-gradient(45deg, #f1f5f9, #f1f5f9 5px, #e2e8f0 5px, #e2e8f0 10px); }
         .dark .inactive-cell { background: repeating-linear-gradient(45deg, #1e293b, #1e293b 5px, #334155 5px, #334155 10px); }
     </style>
@@ -72,7 +72,7 @@
                 </button>
                 <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-lg font-medium transition shadow-sm">📥 Excel</button>
                 <button onclick="openAddModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg font-medium transition shadow-sm">➕ Привычка</button>
-                <button onclick="signOutUser()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 px-3 py-2.5 rounded-lg font-medium transition" title="Выйти">🚪</button>
+                <button onclick="signOutUser()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 px-3 py-2.5 rounded-lg font-medium transition" title="Выйти"></button>
             </div>
         </div>
 
@@ -81,7 +81,7 @@
             <div class="flex justify-between items-center mb-2">
                 <div>
                     <p class="text-sm font-semibold text-slate-700 dark:text-slate-200">📊 Прогресс сегодня</p>
-                    <p class="text-xs text-slate-500 dark:text-slate-400" id="progressText">0 из 0 привычек</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400" id="progressText">0 из 3 привычек</p>
                 </div>
                 <p class="text-2xl font-bold text-blue-600 dark:text-blue-400" id="progressPercent">0%</p>
             </div>
@@ -90,20 +90,23 @@
             </div>
         </div>
 
-        <!-- Mood Diary -->
+        <!-- Mood Diary - ИСПРАВЛЕННАЯ ВЕРСИЯ -->
         <div class="bg-white dark:bg-dark-card rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 mb-6">
-            <div class="flex justify-between items-center mb-3">
-                <h3 class="font-bold text-slate-800 dark:text-dark-text">😊 Дневник настроения</h3>
-                <div class="flex gap-1 text-xs">
-                    <span class="px-2 py-1 rounded bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300"></span>
-                    <span class="px-2 py-1 rounded bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300"></span>
-                    <span class="px-2 py-1 rounded bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300"></span>
-                    <span class="px-2 py-1 rounded bg-lime-100 dark:bg-lime-900/30 text-lime-700 dark:text-lime-300">🙂</span>
-                    <span class="px-2 py-1 rounded bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300">😄</span>
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-slate-800 dark:text-dark-text flex items-center gap-2">
+                    <span class="text-2xl">😊</span>
+                    <span>Дневник настроения</span>
+                </h3>
+                <div class="flex gap-2 text-sm">
+                    <span class="px-2 py-1 rounded bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 font-medium">😢</span>
+                    <span class="px-2 py-1 rounded bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 font-medium">😕</span>
+                    <span class="px-2 py-1 rounded bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 font-medium">😐</span>
+                    <span class="px-2 py-1 rounded bg-lime-100 dark:bg-lime-900/30 text-lime-700 dark:text-lime-300 font-medium">🙂</span>
+                    <span class="px-2 py-1 rounded bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 font-medium">😄</span>
                 </div>
             </div>
             <div class="overflow-x-auto no-scrollbar">
-                <div class="flex gap-1 min-w-max" id="moodRow"></div>
+                <div class="flex gap-2 min-w-max pb-2" id="moodRow"></div>
             </div>
         </div>
 
@@ -280,7 +283,7 @@
             const isDark = html.classList.contains('dark');
             html.classList.toggle('dark', !isDark);
             html.classList.toggle('light', isDark);
-            document.getElementById('themeIcon').textContent = isDark ? '🌙' : '☀️';
+            document.getElementById('themeIcon').textContent = isDark ? '' : '☀️';
             localStorage.setItem('theme', isDark ? 'light' : 'dark');
         };
         const savedTheme = localStorage.getItem('theme') || 'light';
@@ -330,7 +333,7 @@
 
         // Schedule logic
         function isHabitActive(habit, date) {
-            const dayOfWeek = date.getDay(); // 0=Sun, 1=Mon...
+            const dayOfWeek = date.getDay();
             if (!habit.schedule || habit.schedule.type === 'daily') return true;
             if (habit.schedule.type === 'weekdays') return dayOfWeek >= 1 && dayOfWeek <= 5;
             if (habit.schedule.type === 'weekends') return dayOfWeek === 0 || dayOfWeek === 6;
@@ -423,11 +426,9 @@
             const draggedIdx = habits.findIndex(h => h.id === draggedHabitId);
             const targetIdx = habits.findIndex(h => h.id === targetHabitId);
             
-            // Reorder array
             const [moved] = habits.splice(draggedIdx, 1);
             habits.splice(targetIdx, 0, moved);
             
-            // Update order in Firebase
             const uid = currentUser.uid;
             const updates = habits.map((h, idx) => 
                 updateDoc(doc(db, "users", uid, "habits", h.id), { order: idx })
@@ -467,7 +468,7 @@
                 headerRow.insertBefore(th, headerRow.lastElementChild);
             });
 
-            // Render Mood Row
+            // Render Mood Row - ИСПРАВЛЕННАЯ ВЕРСИЯ
             const moodRow = document.getElementById('moodRow');
             moodRow.innerHTML = '';
             days.forEach(day => {
@@ -478,13 +479,29 @@
                 const moodColors = ['', 'bg-red-400', 'bg-orange-400', 'bg-yellow-400', 'bg-lime-400', 'bg-green-500'];
                 
                 const cell = document.createElement('div');
-                cell.className = `flex flex-col items-center min-w-[44px]`;
-                cell.innerHTML = `
-                    <div class="text-xs text-slate-500 dark:text-slate-400 mb-1 ${isToday ? 'font-bold text-blue-600 dark:text-blue-400' : ''}">${day}</div>
-                    <button onclick="openMoodModal('${dateStr}')" class="mood-cell w-8 h-8 rounded-full flex items-center justify-center text-lg ${mood ? moodColors[mood.mood] : 'bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600'} ${isToday ? 'ring-2 ring-blue-400' : ''}">
-                        ${mood ? moodEmojis[mood.mood] : ''}
-                    </button>
-                `;
+                cell.className = `flex flex-col items-center min-w-[50px]`;
+                
+                // Date number
+                const dateDiv = document.createElement('div');
+                dateDiv.className = `text-xs font-medium mb-1.5 ${isToday ? 'text-blue-600 dark:text-blue-400 font-bold' : 'text-slate-500 dark:text-slate-400'}`;
+                dateDiv.textContent = day;
+                cell.appendChild(dateDiv);
+                
+                // Mood circle button
+                const btn = document.createElement('button');
+                btn.onclick = () => openMoodModal(dateStr);
+                
+                if (mood) {
+                    // Has mood - colored circle with emoji
+                    btn.className = `mood-cell w-10 h-10 rounded-full flex items-center justify-center text-xl ${moodColors[mood.mood]} text-white shadow-md hover:shadow-lg transition`;
+                    btn.textContent = moodEmojis[mood.mood];
+                } else {
+                    // No mood - empty circle with dashed border
+                    btn.className = `mood-cell w-10 h-10 rounded-full flex items-center justify-center text-lg border-2 border-dashed ${isToday ? 'border-blue-400 dark:border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-800'} hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition`;
+                    btn.innerHTML = '<span class="text-slate-400 dark:text-slate-500 text-xs">+</span>';
+                }
+                
+                cell.appendChild(btn);
                 moodRow.appendChild(cell);
             });
 
@@ -582,7 +599,7 @@
 
                     const streakTd = document.createElement('td');
                     streakTd.className = 'p-3 border-l border-slate-200 dark:border-slate-700 text-center sticky right-0 bg-white dark:bg-dark-card z-10 font-bold text-slate-700 dark:text-slate-200 min-w-[100px]';
-                    streakTd.innerHTML = streak > 0 ? `<span class="text-orange-500 dark:text-orange-400"> ${streak}</span>` : '<span class="text-slate-300 dark:text-slate-600">-</span>';
+                    streakTd.innerHTML = streak > 0 ? `<span class="text-orange-500 dark:text-orange-400">🔥 ${streak}</span>` : '<span class="text-slate-300 dark:text-slate-600">-</span>';
                     tr.appendChild(streakTd);
 
                     tbody.appendChild(tr);
@@ -733,7 +750,7 @@
         window.exportToExcel = () => {
             const monthNames = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
             const days = Array.from({ length: getDaysInMonth(viewYear, viewMonth) }, (_, i) => i + 1);
-            const moodEmojis = ['', '😢', '😕', '😐', '🙂', '😄'];
+            const moodEmojis = ['', '😢', '😕', '😐', '🙂', ''];
             
             let csv = [`Привычка;${days.map(d => `${d} ${monthNames[viewMonth]}`).join(';')};Серия\n`];
             habits.forEach(habit => {
