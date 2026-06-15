@@ -30,6 +30,25 @@
         .mood-cell:hover { transform: scale(1.15); }
         .inactive-cell { background: repeating-linear-gradient(45deg, #f1f5f9, #f1f5f9 5px, #e2e8f0 5px, #e2e8f0 10px); }
         .dark .inactive-cell { background: repeating-linear-gradient(45deg, #1e293b, #1e293b 5px, #334155 5px, #334155 10px); }
+        /* Будущие дни - диагональная штриховка */
+        .future-cell {
+            background: repeating-linear-gradient(
+                -45deg,
+                transparent,
+                transparent 4px,
+                rgba(148, 163, 184, 0.15) 4px,
+                rgba(148, 163, 184, 0.15) 5px
+            );
+        }
+        .dark .future-cell {
+            background: repeating-linear-gradient(
+                -45deg,
+                transparent,
+                transparent 4px,
+                rgba(148, 163, 184, 0.1) 4px,
+                rgba(148, 163, 184, 0.1) 5px
+            );
+        }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-dark-bg text-slate-800 dark:text-dark-text transition-colors duration-300 p-4 md:p-8">
@@ -70,9 +89,8 @@
                 <button onclick="toggleDarkMode()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 p-2.5 rounded-lg transition" title="Тема">
                     <span id="themeIcon">🌙</span>
                 </button>
-                <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-lg font-medium transition shadow-sm">📥 Excel</button>
                 <button onclick="openAddModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg font-medium transition shadow-sm">➕ Привычка</button>
-                <button onclick="signOutUser()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 px-3 py-2.5 rounded-lg font-medium transition" title="Выйти"></button>
+                <button onclick="signOutUser()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 px-3 py-2.5 rounded-lg font-medium transition" title="Выйти">🚪</button>
             </div>
         </div>
 
@@ -90,21 +108,12 @@
             </div>
         </div>
 
-        <!-- Mood Diary - ИСПРАВЛЕННАЯ ВЕРСИЯ -->
+        <!-- Mood Diary (без легенды) -->
         <div class="bg-white dark:bg-dark-card rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 mb-6">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="font-bold text-slate-800 dark:text-dark-text flex items-center gap-2">
-                    <span class="text-2xl">😊</span>
-                    <span>Дневник настроения</span>
-                </h3>
-                <div class="flex gap-2 text-sm">
-                    <span class="px-2 py-1 rounded bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 font-medium">😢</span>
-                    <span class="px-2 py-1 rounded bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 font-medium">😕</span>
-                    <span class="px-2 py-1 rounded bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 font-medium">😐</span>
-                    <span class="px-2 py-1 rounded bg-lime-100 dark:bg-lime-900/30 text-lime-700 dark:text-lime-300 font-medium">🙂</span>
-                    <span class="px-2 py-1 rounded bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 font-medium">😄</span>
-                </div>
-            </div>
+            <h3 class="font-bold text-slate-800 dark:text-dark-text flex items-center gap-2 mb-4">
+                <span class="text-2xl">😊</span>
+                <span>Дневник настроения</span>
+            </h3>
             <div class="overflow-x-auto no-scrollbar">
                 <div class="flex gap-2 min-w-max pb-2" id="moodRow"></div>
             </div>
@@ -141,6 +150,12 @@
                         <tr class="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs uppercase tracking-wider" id="tableHeader">
                             <th class="p-4 border-b border-r border-slate-200 dark:border-slate-700 text-left sticky left-0 bg-slate-50 dark:bg-slate-800 z-20 min-w-[200px]">Привычка</th>
                             <th class="p-4 border-b border-slate-200 dark:border-slate-700 text-center sticky right-0 bg-slate-50 dark:bg-slate-800 z-20 min-w-[100px]">Серия 🔥</th>
+                        </tr>
+                        <!-- Строка с днями недели -->
+                        <tr id="weekdaysRow" class="bg-slate-50 dark:bg-slate-800 text-[10px] text-slate-400 dark:text-slate-500">
+                            <th class="p-1 border-b border-r border-slate-200 dark:border-slate-700 sticky left-0 bg-slate-50 dark:bg-slate-800 z-20"></th>
+                            <!-- Дни недели вставляются JS -->
+                            <th class="p-1 border-b border-slate-200 dark:border-slate-700 sticky right-0 bg-slate-50 dark:bg-slate-800 z-20"></th>
                         </tr>
                     </thead>
                     <tbody id="tableBody" class="text-sm"></tbody>
@@ -223,7 +238,7 @@
         </div>
     </div>
 
-    <!-- Mood Modal -->
+    <!-- Mood Modal (исправлены равные кнопки) -->
     <div id="moodModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="bg-white dark:bg-dark-card rounded-xl shadow-2xl w-full max-w-md p-6 border border-slate-200 dark:border-slate-700">
             <h3 class="text-xl font-bold mb-1 text-slate-900 dark:text-dark-text">Настроение</h3>
@@ -232,12 +247,12 @@
                 <input type="hidden" id="moodDateStr">
                 <div>
                     <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Как ты себя чувствуешь?</label>
-                    <div class="flex justify-between gap-2">
-                        <label class="cursor-pointer flex-1"><input type="radio" name="mood" value="1" class="sr-only peer"><div class="text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-red-500 peer-checked:border-red-500 peer-checked:text-white transition">😢<div class="text-xs mt-1">Плохо</div></div></label>
-                        <label class="cursor-pointer flex-1"><input type="radio" name="mood" value="2" class="sr-only peer"><div class="text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-orange-500 peer-checked:border-orange-500 peer-checked:text-white transition">😕<div class="text-xs mt-1">Так себе</div></div></label>
-                        <label class="cursor-pointer flex-1"><input type="radio" name="mood" value="3" class="sr-only peer"><div class="text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-yellow-500 peer-checked:border-yellow-500 peer-checked:text-white transition">😐<div class="text-xs mt-1">Норм</div></div></label>
-                        <label class="cursor-pointer flex-1"><input type="radio" name="mood" value="4" class="sr-only peer"><div class="text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-lime-500 peer-checked:border-lime-500 peer-checked:text-white transition">🙂<div class="text-xs mt-1">Хорошо</div></div></label>
-                        <label class="cursor-pointer flex-1"><input type="radio" name="mood" value="5" class="sr-only peer"><div class="text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-green-500 peer-checked:border-green-500 peer-checked:text-white transition">😄<div class="text-xs mt-1">Отлично</div></div></label>
+                    <div class="grid grid-cols-5 gap-2">
+                        <label class="cursor-pointer"><input type="radio" name="mood" value="1" class="sr-only peer"><div class="text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-red-500 peer-checked:border-red-500 peer-checked:text-white transition"><div class="text-[11px] mt-1 leading-tight">Плохо</div></div></label>
+                        <label class="cursor-pointer"><input type="radio" name="mood" value="2" class="sr-only peer"><div class="text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-orange-500 peer-checked:border-orange-500 peer-checked:text-white transition">😕<div class="text-[11px] mt-1 leading-tight">Так себе</div></div></label>
+                        <label class="cursor-pointer"><input type="radio" name="mood" value="3" class="sr-only peer"><div class="text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-yellow-500 peer-checked:border-yellow-500 peer-checked:text-white transition">😐<div class="text-[11px] mt-1 leading-tight">Норм</div></div></label>
+                        <label class="cursor-pointer"><input type="radio" name="mood" value="4" class="sr-only peer"><div class="text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-lime-500 peer-checked:border-lime-500 peer-checked:text-white transition">🙂<div class="text-[11px] mt-1 leading-tight">Хорошо</div></div></label>
+                        <label class="cursor-pointer"><input type="radio" name="mood" value="5" class="sr-only peer"><div class="text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-green-500 peer-checked:border-green-500 peer-checked:text-white transition">😄<div class="text-[11px] mt-1 leading-tight">Отлично</div></div></label>
                     </div>
                 </div>
                 <div>
@@ -283,7 +298,7 @@
             const isDark = html.classList.contains('dark');
             html.classList.toggle('dark', !isDark);
             html.classList.toggle('light', isDark);
-            document.getElementById('themeIcon').textContent = isDark ? '' : '☀️';
+            document.getElementById('themeIcon').textContent = isDark ? '🌙' : '☀️';
             localStorage.setItem('theme', isDark ? 'light' : 'dark');
         };
         const savedTheme = localStorage.getItem('theme') || 'light';
@@ -331,7 +346,6 @@
             });
         }
 
-        // Schedule logic
         function isHabitActive(habit, date) {
             const dayOfWeek = date.getDay();
             if (!habit.schedule || habit.schedule.type === 'daily') return true;
@@ -354,7 +368,7 @@
             return '';
         }
 
-        // Navigation
+        // Навигация
         window.changeMonth = (delta) => {
             viewMonth += delta;
             if (viewMonth > 11) { viewMonth = 0; viewYear++; }
@@ -365,6 +379,14 @@
 
         function getDaysInMonth(y, m) { return new Date(y, m + 1, 0).getDate(); }
         function formatDateStr(y, m, d) { return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
+        function getWeekdayShort(date) {
+            const days = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+            return days[date.getDay()];
+        }
+        function isWeekend(date) {
+            const d = date.getDay();
+            return d === 0 || d === 6;
+        }
 
         function calculateStreak(habitId) {
             let streak = 0;
@@ -393,110 +415,103 @@
 
         // Drag and Drop
         let draggedHabitId = null;
-
         function handleDragStart(e, habitId) {
             draggedHabitId = habitId;
             e.currentTarget.classList.add('dragging');
             e.dataTransfer.effectAllowed = 'move';
         }
-
         function handleDragEnd(e) {
             e.currentTarget.classList.remove('dragging');
             document.querySelectorAll('#tableBody tr').forEach(tr => tr.classList.remove('drag-over'));
         }
-
-        function handleDragOver(e) {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-        }
-
-        function handleDragEnter(e, tr) {
-            e.preventDefault();
-            tr.classList.add('drag-over');
-        }
-
-        function handleDragLeave(e, tr) {
-            tr.classList.remove('drag-over');
-        }
-
+        function handleDragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }
+        function handleDragEnter(e, tr) { e.preventDefault(); tr.classList.add('drag-over'); }
+        function handleDragLeave(e, tr) { tr.classList.remove('drag-over'); }
         async function handleDrop(e, targetHabitId) {
             e.preventDefault();
             if (!draggedHabitId || draggedHabitId === targetHabitId) return;
-            
             const draggedIdx = habits.findIndex(h => h.id === draggedHabitId);
             const targetIdx = habits.findIndex(h => h.id === targetHabitId);
-            
             const [moved] = habits.splice(draggedIdx, 1);
             habits.splice(targetIdx, 0, moved);
-            
             const uid = currentUser.uid;
-            const updates = habits.map((h, idx) => 
-                updateDoc(doc(db, "users", uid, "habits", h.id), { order: idx })
-            );
+            const updates = habits.map((h, idx) => updateDoc(doc(db, "users", uid, "habits", h.id), { order: idx }));
             await Promise.all(updates);
         }
-
         async function moveHabit(habitId, direction) {
             const idx = habits.findIndex(h => h.id === habitId);
             const newIdx = idx + direction;
             if (newIdx < 0 || newIdx >= habits.length) return;
-            
             [habits[idx], habits[newIdx]] = [habits[newIdx], habits[idx]];
             const uid = currentUser.uid;
-            const updates = habits.map((h, i) => 
-                updateDoc(doc(db, "users", uid, "habits", h.id), { order: i })
-            );
+            const updates = habits.map((h, i) => updateDoc(doc(db, "users", uid, "habits", h.id), { order: i }));
             await Promise.all(updates);
         }
 
         function render() {
             const headerRow = document.getElementById('tableHeader');
+            const weekdaysRow = document.getElementById('weekdaysRow');
             const tbody = document.getElementById('tableBody');
             const emptyState = document.getElementById('emptyState');
             const monthNames = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
             document.getElementById('currentMonthDisplay').textContent = `${monthNames[viewMonth]} ${viewYear}`;
 
+            // Очистка динамических заголовков (оставляем первый и последний)
             while (headerRow.children.length > 2) headerRow.removeChild(headerRow.children[1]);
+            while (weekdaysRow.children.length > 2) weekdaysRow.removeChild(weekdaysRow.children[1]);
+
             const daysInMonth = getDaysInMonth(viewYear, viewMonth);
             const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
             
             days.forEach(day => {
+                const date = new Date(viewYear, viewMonth, day);
                 const isToday = (viewYear === today.getFullYear() && viewMonth === today.getMonth() && day === today.getDate());
+                const weekday = getWeekdayShort(date);
+                const weekend = isWeekend(date);
+                
+                // Число дня
                 const th = document.createElement('th');
                 th.className = `p-2 border-b border-slate-200 dark:border-slate-700 text-center min-w-[44px] select-none ${isToday ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-bold' : ''}`;
                 th.textContent = day;
                 headerRow.insertBefore(th, headerRow.lastElementChild);
+                
+                // День недели
+                const wdTh = document.createElement('th');
+                wdTh.className = `p-1 border-b border-slate-200 dark:border-slate-700 text-center min-w-[44px] ${isToday ? 'bg-blue-50 dark:bg-blue-900/30' : ''} ${weekend ? 'text-red-400 dark:text-red-500' : 'text-slate-400 dark:text-slate-500'}`;
+                wdTh.textContent = weekday;
+                weekdaysRow.insertBefore(wdTh, weekdaysRow.lastElementChild);
             });
 
-            // Render Mood Row - ИСПРАВЛЕННАЯ ВЕРСИЯ
+            // Mood Row (с днями недели)
             const moodRow = document.getElementById('moodRow');
             moodRow.innerHTML = '';
             days.forEach(day => {
+                const date = new Date(viewYear, viewMonth, day);
                 const dateStr = formatDateStr(viewYear, viewMonth, day);
                 const isToday = (viewYear === today.getFullYear() && viewMonth === today.getMonth() && day === today.getDate());
                 const mood = moodsData[dateStr];
                 const moodEmojis = ['', '😢', '😕', '😐', '🙂', '😄'];
                 const moodColors = ['', 'bg-red-400', 'bg-orange-400', 'bg-yellow-400', 'bg-lime-400', 'bg-green-500'];
+                const weekday = getWeekdayShort(date);
+                const weekend = isWeekend(date);
                 
                 const cell = document.createElement('div');
                 cell.className = `flex flex-col items-center min-w-[50px]`;
                 
-                // Date number
+                // День недели + число
                 const dateDiv = document.createElement('div');
-                dateDiv.className = `text-xs font-medium mb-1.5 ${isToday ? 'text-blue-600 dark:text-blue-400 font-bold' : 'text-slate-500 dark:text-slate-400'}`;
-                dateDiv.textContent = day;
+                dateDiv.className = `flex flex-col items-center mb-1.5 ${isToday ? 'text-blue-600 dark:text-blue-400 font-bold' : 'text-slate-500 dark:text-slate-400'}`;
+                dateDiv.innerHTML = `<span class="text-[10px] ${weekend ? 'text-red-400 dark:text-red-500' : ''}">${weekday}</span><span class="text-xs font-medium">${day}</span>`;
                 cell.appendChild(dateDiv);
                 
-                // Mood circle button
+                // Mood circle
                 const btn = document.createElement('button');
                 btn.onclick = () => openMoodModal(dateStr);
                 
                 if (mood) {
-                    // Has mood - colored circle with emoji
                     btn.className = `mood-cell w-10 h-10 rounded-full flex items-center justify-center text-xl ${moodColors[mood.mood]} text-white shadow-md hover:shadow-lg transition`;
                     btn.textContent = moodEmojis[mood.mood];
                 } else {
-                    // No mood - empty circle with dashed border
                     btn.className = `mood-cell w-10 h-10 rounded-full flex items-center justify-center text-lg border-2 border-dashed ${isToday ? 'border-blue-400 dark:border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-800'} hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition`;
                     btn.innerHTML = '<span class="text-slate-400 dark:text-slate-500 text-xs">+</span>';
                 }
@@ -505,7 +520,7 @@
                 moodRow.appendChild(cell);
             });
 
-            // Render Habits
+            // Habits Table
             tbody.innerHTML = '';
             if (habits.length === 0) {
                 emptyState.classList.remove('hidden');
@@ -515,7 +530,7 @@
                 emptyState.classList.add('hidden');
                 let totalChecks = 0, totalPossible = 0, todayCompleted = 0, bestStreak = 0;
 
-                habits.forEach((habit, idx) => {
+                habits.forEach((habit) => {
                     const tr = document.createElement('tr');
                     tr.className = 'hover:bg-slate-50 dark:hover:bg-slate-800/50 transition border-b border-slate-100 dark:border-slate-800 last:border-0';
                     tr.draggable = true;
@@ -535,7 +550,7 @@
                     const nameTd = document.createElement('td');
                     nameTd.className = `p-3 border-r border-slate-200 dark:border-slate-700 sticky left-0 bg-white dark:bg-dark-card z-10 font-medium text-slate-800 dark:text-dark-text flex items-center gap-2 min-w-[200px]`;
                     nameTd.innerHTML = `
-                        <span class="cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 text-lg" title="Перетащи"></span>
+                        <span class="cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 text-lg">⠿</span>
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2">
                                 <span class="w-3 h-3 rounded-full bg-${habit.color}-500 flex-shrink-0"></span>
@@ -567,7 +582,11 @@
                         if (!isActive) {
                             td.className += ' inactive-cell';
                             td.innerHTML = '<span class="text-slate-300 dark:text-slate-600 text-xs">—</span>';
-                        } else if (!isFuture) {
+                        } else if (isFuture) {
+                            // БУДУЩИЕ ДНИ - выделены штриховкой + иконка замка
+                            td.className += ' future-cell opacity-60';
+                            td.innerHTML = '<span class="text-slate-400 dark:text-slate-600 text-xs">🔒</span>';
+                        } else {
                             const btn = document.createElement('button');
                             btn.className = `cell-checkbox w-8 h-8 rounded-md border-2 flex items-center justify-center text-lg mx-auto ${isCompleted ? 'cell-checked border-emerald-600 text-white' : 'border-slate-200 dark:border-slate-600 text-transparent hover:border-slate-400 dark:hover:border-slate-500'}`;
                             btn.innerHTML = '✓';
@@ -583,7 +602,7 @@
                             } else {
                                 const emptyNoteBtn = document.createElement('button');
                                 emptyNoteBtn.className = 'absolute top-0.5 right-0.5 text-[10px] text-slate-300 dark:text-slate-600 hover:text-blue-500 dark:hover:text-blue-400 transition opacity-0 hover:opacity-100';
-                                emptyNoteBtn.innerHTML = '+📝';
+                                emptyNoteBtn.innerHTML = '+';
                                 emptyNoteBtn.onclick = (e) => { e.stopPropagation(); openNoteModal(habit.id, dateStr, habit.name); };
                                 td.appendChild(emptyNoteBtn);
                             }
@@ -591,8 +610,6 @@
                             if (isCompleted) totalChecks++;
                             totalPossible++;
                             if (isToday && isCompleted) todayCompleted++;
-                        } else {
-                            td.className += ' bg-slate-50 dark:bg-slate-800/50';
                         }
                         tr.appendChild(td);
                     });
@@ -703,7 +720,6 @@
             closeModal('moodModal');
         });
 
-        // Schedule toggle
         window.toggleScheduleDays = () => {
             const type = document.getElementById('scheduleType').value;
             document.getElementById('customDaysBlock').classList.toggle('hidden', type !== 'custom');
@@ -731,7 +747,6 @@
             closeModal('modal');
         });
 
-        // Modals
         window.openAddModal = () => {
             document.getElementById('modal').classList.remove('hidden');
             document.getElementById('modal').classList.add('flex');
@@ -750,7 +765,7 @@
         window.exportToExcel = () => {
             const monthNames = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
             const days = Array.from({ length: getDaysInMonth(viewYear, viewMonth) }, (_, i) => i + 1);
-            const moodEmojis = ['', '😢', '😕', '😐', '🙂', ''];
+            const moodEmojis = ['', '😢', '😕', '😐', '🙂', '😄'];
             
             let csv = [`Привычка;${days.map(d => `${d} ${monthNames[viewMonth]}`).join(';')};Серия\n`];
             habits.forEach(habit => {
