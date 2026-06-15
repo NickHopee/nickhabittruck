@@ -37,8 +37,8 @@
         .dark .future-cell {
             background: repeating-linear-gradient(-45deg, transparent, transparent 4px, rgba(148, 163, 184, 0.1) 4px, rgba(148, 163, 184, 0.1) 5px);
         }
-        .emoji-btn { transition: all 0.2s; }
-        .emoji-btn:hover { transform: scale(1.1); }
+        .emoji-btn { transition: all 0.2s; cursor: pointer; }
+        .emoji-btn:hover { transform: scale(1.15); }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-dark-bg text-slate-800 dark:text-dark-text transition-colors duration-300 p-4 md:p-8">
@@ -63,7 +63,7 @@
     <div id="appScreen" class="hidden max-w-7xl mx-auto">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
             <div>
-                <h1 class="text-3xl font-bold text-slate-900 dark:text-dark-text">DumpTruck</h1>
+                <h1 class="text-3xl font-bold text-slate-900 dark:text-dark-text">🚛 DumpTruck</h1>
                 <div class="flex items-center gap-3 mt-2">
                     <button onclick="changeMonth(-1)" class="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition text-slate-600 dark:text-slate-300">←</button>
                     <p class="text-lg font-semibold text-slate-700 dark:text-slate-200 min-w-[180px] text-center" id="currentMonthDisplay">Июнь 2026</p>
@@ -138,7 +138,7 @@
                 <table class="w-full border-collapse min-w-max">
                     <thead>
                         <tr class="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs uppercase tracking-wider" id="tableHeader">
-                            <th class="p-4 border-b border-r border-slate-200 dark:border-slate-700 text-left sticky left-0 bg-slate-50 dark:bg-slate-800 z-20 min-w-[120px]">Активность</th>
+                            <th class="p-4 border-b border-r border-slate-200 dark:border-slate-700 text-left sticky left-0 bg-slate-50 dark:bg-slate-800 z-20 min-w-[150px]">Активность</th>
                             <th class="p-4 border-b border-slate-200 dark:border-slate-700 text-center sticky right-0 bg-slate-50 dark:bg-slate-800 z-20 min-w-[100px]">Серия 🔥</th>
                         </tr>
                         <tr id="weekdaysRow" class="bg-slate-50 dark:bg-slate-800 text-[10px] text-slate-400 dark:text-slate-500">
@@ -156,91 +156,47 @@
         </div>
     </div>
 
-    <!-- Add Activity Modal with Emoji Selector -->
+    <!-- Add Activity Modal -->
     <div id="modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="bg-white dark:bg-dark-card rounded-xl shadow-2xl w-full max-w-md p-6 border border-slate-200 dark:border-slate-700 max-h-[90vh] overflow-y-auto">
             <h3 class="text-xl font-bold mb-4 text-slate-900 dark:text-dark-text">Новая активность</h3>
             <form id="habitForm" class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Выбери эмодзи:</label>
-                    <div class="grid grid-cols-6 gap-2 mb-4">
-                        <!-- Water & Health -->
-                        <label class="cursor-pointer"><input type="radio" name="emoji" value="💧" class="sr-only peer" checked>
-                            <div class="emoji-btn text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 text-2xl">💧</div></label>
-                        <label class="cursor-pointer"><input type="radio" name="emoji" value="🏃" class="sr-only peer">
-                            <div class="emoji-btn text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 text-2xl">🏃</div></label>
-                        <label class="cursor-pointer"><input type="radio" name="emoji" value="🏋️" class="sr-only peer">
-                            <div class="emoji-btn text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 text-2xl">🏋️</div></label>
-                        <label class="cursor-pointer"><input type="radio" name="emoji" value="😴" class="sr-only peer">
-                            <div class="emoji-btn text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 text-2xl">😴</div></label>
-                        <label class="cursor-pointer"><input type="radio" name="emoji" value="🧘" class="sr-only peer">
-                            <div class="emoji-btn text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 text-2xl">🧘</div></label>
-                        <label class="cursor-pointer"><input type="radio" name="emoji" value="🍎" class="sr-only peer">
-                            <div class="emoji-btn text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 text-2xl">🍎</div></label>
-                        
-                        <!-- Learning -->
-                        <label class="cursor-pointer"><input type="radio" name="emoji" value="📚" class="sr-only peer">
-                            <div class="emoji-btn text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 text-2xl">📚</div></label>
-                        <label class="cursor-pointer"><input type="radio" name="emoji" value="📝" class="sr-only peer">
-                            <div class="emoji-btn text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 text-2xl">📝</div></label>
-                        <label class="cursor-pointer"><input type="radio" name="emoji" value="🎓" class="sr-only peer">
-                            <div class="emoji-btn text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 text-2xl">🎓</div></label>
-                        <label class="cursor-pointer"><input type="radio" name="emoji" value="✍️" class="sr-only peer">
-                            <div class="emoji-btn text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 text-2xl">✍️</div></label>
-                        
-                        <!-- Work -->
-                        <label class="cursor-pointer"><input type="radio" name="emoji" value="💻" class="sr-only peer">
-                            <div class="emoji-btn text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 text-2xl">💻</div></label>
-                        <label class="cursor-pointer"><input type="radio" name="emoji" value="💼" class="sr-only peer">
-                            <div class="emoji-btn text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 text-2xl">💼</div></label>
-                        <label class="cursor-pointer"><input type="radio" name="emoji" value="📞" class="sr-only peer">
-                            <div class="emoji-btn text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 text-2xl">📞</div></label>
-                        <label class="cursor-pointer"><input type="radio" name="emoji" value="📧" class="sr-only peer">
-                            <div class="emoji-btn text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 text-2xl">📧</div></label>
-                        
-                        <!-- Goals & Productivity -->
-                        <label class="cursor-pointer"><input type="radio" name="emoji" value="🎯" class="sr-only peer">
-                            <div class="emoji-btn text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 text-2xl">🎯</div></label>
-                        <label class="cursor-pointer"><input type="radio" name="emoji" value="💪" class="sr-only peer">
-                            <div class="emoji-btn text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 text-2xl">💪</div></label>
-                        <label class="cursor-pointer"><input type="radio" name="emoji" value="🔥" class="sr-only peer">
-                            <div class="emoji-btn text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 text-2xl">🔥</div></label>
-                        <label class="cursor-pointer"><input type="radio" name="emoji" value="⭐" class="sr-only peer">
-                            <div class="emoji-btn text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 text-2xl">⭐</div></label>
-                        
-                        <!-- Creative -->
-                        <label class="cursor-pointer"><input type="radio" name="emoji" value="🎨" class="sr-only peer">
-                            <div class="emoji-btn text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 text-2xl">🎨</div></label>
-                        <label class="cursor-pointer"><input type="radio" name="emoji" value="🎬" class="sr-only peer">
-                            <div class="emoji-btn text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 text-2xl">🎬</div></label>
-                        <label class="cursor-pointer"><input type="radio" name="emoji" value="🎵" class="sr-only peer">
-                            <div class="emoji-btn text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 text-2xl">🎵</div></label>
-                        
-                        <!-- Home & Life -->
-                        <label class="cursor-pointer"><input type="radio" name="emoji" value="🧹" class="sr-only peer">
-                            <div class="emoji-btn text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 text-2xl">🧹</div></label>
-                        <label class="cursor-pointer"><input type="radio" name="emoji" value="🍳" class="sr-only peer">
-                            <div class="emoji-btn text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 text-2xl">🍳</div></label>
-                        <label class="cursor-pointer"><input type="radio" name="emoji" value="🌱" class="sr-only peer">
-                            <div class="emoji-btn text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 text-2xl">🌱</div></label>
-                        <label class="cursor-pointer"><input type="radio" name="emoji" value="🐕" class="sr-only peer">
-                            <div class="emoji-btn text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 text-2xl">🐕</div></label>
-                        
-                        <!-- Other -->
-                        <label class="cursor-pointer"><input type="radio" name="emoji" value="✅" class="sr-only peer">
-                            <div class="emoji-btn text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 text-2xl">✅</div></label>
-                        <label class="cursor-pointer"><input type="radio" name="emoji" value="💰" class="sr-only peer">
-                            <div class="emoji-btn text-center p-3 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:border-blue-500 text-2xl">💰</div></label>
-                    </div>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Название</label>
+                    <input type="text" id="activityName" placeholder="Например: Чтение, Спорт..." required class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-dark-text p-2.5 focus:ring-2 focus:ring-blue-500 outline-none">
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Цвет</label>
-                    <div class="flex gap-3">
-                        <label class="cursor-pointer"><input type="radio" name="color" value="blue" checked class="sr-only peer"><div class="w-8 h-8 rounded-full bg-blue-500 peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-blue-500"></div></label>
-                        <label class="cursor-pointer"><input type="radio" name="color" value="emerald" class="sr-only peer"><div class="w-8 h-8 rounded-full bg-emerald-500 peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-emerald-500"></div></label>
-                        <label class="cursor-pointer"><input type="radio" name="color" value="purple" class="sr-only peer"><div class="w-8 h-8 rounded-full bg-purple-500 peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-purple-500"></div></label>
-                        <label class="cursor-pointer"><input type="radio" name="color" value="orange" class="sr-only peer"><div class="w-8 h-8 rounded-full bg-orange-500 peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-orange-500"></div></label>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Эмодзи <button type="button" onclick="toggleEmojiPicker()" class="text-blue-500 hover:text-blue-600 text-xs ml-2">📋 Выбрать</button></label>
+                    <div class="flex items-center gap-3 mb-2">
+                        <div id="selectedEmoji" class="text-3xl p-2 bg-slate-100 dark:bg-slate-800 rounded-lg border-2 border-slate-300 dark:border-slate-600">📌</div>
+                        <input type="hidden" id="selectedEmojiInput" value="📌">
+                    </div>
+                    
+                    <!-- Emoji Picker (скрыт по умолчанию) -->
+                    <div id="emojiPicker" class="hidden grid grid-cols-6 gap-1 mb-3 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('💧')">💧</button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🏃')">🏃</button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🏋️')">️</button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('😴')">😴</button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🧘')"></button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🍎')">🍎</button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('📚')"></button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('📝')"></button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('💻')">💻</button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('💼')">💼</button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🎯')"></button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('💪')">💪</button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🔥')"></button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('⭐')">⭐</button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🎨')"></button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🎵')"></button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🧹')">🧹</button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🍳')">🍳</button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🌱')"></button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('✅')">✅</button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('💰')">💰</button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('')">🎓</button>
                     </div>
                 </div>
                 
@@ -471,6 +427,18 @@
             else bar.className = 'progress-bar bg-gradient-to-r from-blue-500 to-emerald-500 h-3 rounded-full';
         }
 
+        // Emoji Picker
+        window.toggleEmojiPicker = () => {
+            const picker = document.getElementById('emojiPicker');
+            picker.classList.toggle('hidden');
+        };
+
+        window.selectEmoji = (emoji) => {
+            document.getElementById('selectedEmoji').textContent = emoji;
+            document.getElementById('selectedEmojiInput').value = emoji;
+            document.getElementById('emojiPicker').classList.add('hidden');
+        };
+
         let draggedHabitId = null;
         function handleDragStart(e, habitId) {
             draggedHabitId = habitId;
@@ -598,11 +566,12 @@
 
                     const scheduleLabel = getScheduleLabel(habit);
                     const nameTd = document.createElement('td');
-                    nameTd.className = `p-3 border-r border-slate-200 dark:border-slate-700 sticky left-0 bg-white dark:bg-dark-card z-10 font-medium text-slate-800 dark:text-dark-text flex items-center gap-2 min-w-[120px]`;
+                    nameTd.className = `p-3 border-r border-slate-200 dark:border-slate-700 sticky left-0 bg-white dark:bg-dark-card z-10 font-medium text-slate-800 dark:text-dark-text flex items-center gap-2 min-w-[150px]`;
                     nameTd.innerHTML = `
                         <span class="cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 text-lg">⠿</span>
                         <div class="flex-1 min-w-0 flex items-center gap-2">
                             <span class="text-2xl flex-shrink-0">${habit.emoji || '📌'}</span>
+                            <span class="truncate">${habit.name || 'Активность'}</span>
                         </div>
                         <div class="flex md:hidden gap-1">
                             <button onclick="moveHabit('${habit.id}', -1)" class="text-slate-400 hover:text-blue-500 text-xs px-1">↑</button>
@@ -772,7 +741,8 @@
             e.preventDefault();
             if (!currentUser) return;
             
-            const emoji = document.querySelector('input[name="emoji"]:checked').value;
+            const emoji = document.getElementById('selectedEmojiInput').value;
+            const name = document.getElementById('activityName').value.trim();
             const scheduleType = document.getElementById('scheduleType').value;
             let schedule = { type: scheduleType };
             if (scheduleType === 'custom') {
@@ -782,8 +752,8 @@
             }
             
             await addDoc(collection(db, "users", currentUser.uid, "habits"), {
+                name: name,
                 emoji: emoji,
-                color: document.querySelector('input[name="color"]:checked').value,
                 schedule: schedule,
                 order: habits.length,
                 createdAt: serverTimestamp()
@@ -794,11 +764,17 @@
         window.openAddModal = () => {
             document.getElementById('modal').classList.remove('hidden');
             document.getElementById('modal').classList.add('flex');
+            document.getElementById('activityName').focus();
         };
         window.closeModal = (modalId) => {
             document.getElementById(modalId).classList.add('hidden');
             document.getElementById(modalId).classList.remove('flex');
-            if (modalId === 'modal') document.getElementById('habitForm').reset();
+            if (modalId === 'modal') {
+                document.getElementById('habitForm').reset();
+                document.getElementById('selectedEmoji').textContent = '📌';
+                document.getElementById('selectedEmojiInput').value = '📌';
+                document.getElementById('emojiPicker').classList.add('hidden');
+            }
         };
         document.querySelectorAll('.fixed.inset-0').forEach(modal => {
             modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(modal.id); });
@@ -811,7 +787,7 @@
             
             let csv = [`Активность;${days.map(d => `${d} ${monthNames[viewMonth]}`).join(';')};Серия\n`];
             habits.forEach(habit => {
-                const row = [habit.emoji || '📌'];
+                const row = [`${habit.emoji || '📌'} ${habit.name || 'Активность'}`];
                 days.forEach(day => {
                     const date = new Date(viewYear, viewMonth, day);
                     const dateStr = formatDateStr(viewYear, viewMonth, day);
