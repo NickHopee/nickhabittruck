@@ -1,104 +1,152 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" class="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>☁️ Трекер Привычек (Cloud)</title>
+    <title>☁️ Трекер Привычек</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            bg: '#0f172a',
+                            card: '#1e293b',
+                            text: '#f1f5f9'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: #f8fafc; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; }
         .no-scrollbar::-webkit-scrollbar { height: 8px; width: 8px; }
         .no-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
         .no-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .dark .no-scrollbar::-webkit-scrollbar-track { background: #1e293b; }
+        .dark .no-scrollbar::-webkit-scrollbar-thumb { background: #475569; }
         .cell-checkbox { transition: all 0.2s ease; }
         .cell-checkbox:hover { transform: scale(1.1); }
         .cell-checked { background-color: #10b981; border-color: #059669; }
-        .loader { border-top-color: #3498db; -webkit-animation: spinner 1.5s linear infinite; animation: spinner 1.5s linear infinite; }
+        .loader { border-top-color: #3498db; animation: spinner 1.5s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .progress-bar { transition: width 0.5s ease-in-out; }
+        html { scroll-behavior: smooth; }
     </style>
 </head>
-<body class="text-slate-800 p-4 md:p-8">
+<body class="bg-slate-50 dark:bg-dark-bg text-slate-800 dark:text-dark-text transition-colors duration-300 p-4 md:p-8">
 
-    <!-- Экран загрузки -->
-    <div id="loadingScreen" class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center">
-        <div class="loader ease-linear rounded-full border-4 border-t-4 border-slate-200 h-12 w-12 mb-4"></div>
-        <p class="text-slate-500 font-medium">Подключение к облаку...</p>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="fixed inset-0 bg-white dark:bg-dark-bg z-50 flex flex-col items-center justify-center">
+        <div class="loader ease-linear rounded-full border-4 border-t-4 border-slate-200 dark:border-slate-700 h-12 w-12 mb-4"></div>
+        <p class="text-slate-500 dark:text-slate-400 font-medium">Подключение...</p>
     </div>
 
-    <!-- Экран входа -->
-    <div id="loginScreen" class="hidden fixed inset-0 bg-slate-50 z-40 flex flex-col items-center justify-center p-4">
-        <div class="bg-white p-8 rounded-2xl shadow-xl text-center max-w-sm w-full border border-slate-200">
+    <!-- Login Screen -->
+    <div id="loginScreen" class="hidden fixed inset-0 bg-slate-50 dark:bg-dark-bg z-40 flex flex-col items-center justify-center p-4">
+        <div class="bg-white dark:bg-dark-card p-8 rounded-2xl shadow-xl text-center max-w-sm w-full border border-slate-200 dark:border-slate-700">
             <div class="text-5xl mb-4">📅</div>
-            <h1 class="text-2xl font-bold text-slate-900 mb-2">Трекер Привычек</h1>
-            <p class="text-slate-500 mb-6">Войди, чтобы синхронизировать прогресс между всеми устройствами.</p>
-            <button onclick="signIn()" class="w-full bg-white border border-slate-300 text-slate-700 font-semibold py-3 px-4 rounded-lg hover:bg-slate-50 transition flex items-center justify-center gap-3 shadow-sm">
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-dark-text mb-2">Трекер Привычек</h1>
+            <p class="text-slate-500 dark:text-slate-400 mb-6">Синхронизация между всеми устройствами</p>
+            <button onclick="signIn()" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 font-semibold py-3 px-4 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition flex items-center justify-center gap-3 shadow-sm">
                 <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
                 Войти через Google
             </button>
         </div>
     </div>
 
-    <!-- Основное приложение -->
+    <!-- Main App -->
     <div id="appScreen" class="hidden max-w-7xl mx-auto">
+        <!-- Header -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
             <div>
-                <h1 class="text-3xl font-bold text-slate-900">📅 Трекер Привычек</h1>
+                <h1 class="text-3xl font-bold text-slate-900 dark:text-dark-text">📅 Трекер Привычек</h1>
                 <div class="flex items-center gap-3 mt-2">
-                    <button onclick="changeMonth(-1)" class="p-1.5 rounded-lg hover:bg-slate-200 transition text-slate-600">←</button>
-                    <p class="text-lg font-semibold text-slate-700 min-w-[180px] text-center" id="currentMonthDisplay">Июнь 2026</p>
-                    <button onclick="changeMonth(1)" class="p-1.5 rounded-lg hover:bg-slate-200 transition text-slate-600">→</button>
-                    <button onclick="resetToToday()" class="text-xs bg-slate-200 hover:bg-slate-300 text-slate-700 px-2 py-1 rounded transition ml-2">Сегодня</button>
+                    <button onclick="changeMonth(-1)" class="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition text-slate-600 dark:text-slate-300">←</button>
+                    <p class="text-lg font-semibold text-slate-700 dark:text-slate-200 min-w-[180px] text-center" id="currentMonthDisplay">Июнь 2026</p>
+                    <button onclick="changeMonth(1)" class="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition text-slate-600 dark:text-slate-300">→</button>
+                    <button onclick="resetToToday()" class="text-xs bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 px-2 py-1 rounded transition ml-2">Сегодня</button>
                 </div>
             </div>
             <div class="flex gap-3 flex-wrap items-center">
                 <div class="flex items-center gap-2 mr-2">
-                    <img id="userAvatar" src="" class="w-8 h-8 rounded-full border border-slate-300" alt="User">
-                    <span id="userName" class="text-sm font-medium text-slate-600 hidden md:block"></span>
+                    <img id="userAvatar" src="" class="w-8 h-8 rounded-full border border-slate-300 dark:border-slate-600" alt="User">
+                    <span id="userName" class="text-sm font-medium text-slate-600 dark:text-slate-300 hidden md:block"></span>
                 </div>
+                <!-- Dark Mode Toggle -->
+                <button onclick="toggleDarkMode()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 p-2.5 rounded-lg transition" title="Переключить тему">
+                    <span id="themeIcon">🌙</span>
+                </button>
                 <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-lg font-medium transition flex items-center gap-2 shadow-sm">
                     📥 Excel
                 </button>
                 <button onclick="openAddModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg font-medium transition flex items-center gap-2 shadow-sm">
                     ➕ Привычка
                 </button>
-                <button onclick="signOutUser()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-2.5 rounded-lg font-medium transition" title="Выйти">
+                <button onclick="signOutUser()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 px-3 py-2.5 rounded-lg font-medium transition" title="Выйти">
                     🚪
                 </button>
             </div>
         </div>
 
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Всего привычек</p>
-                <p class="text-2xl font-bold text-slate-900" id="statTotal">0</p>
+        <!-- Progress Bar for Today -->
+        <div class="bg-white dark:bg-dark-card rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 mb-6">
+            <div class="flex justify-between items-center mb-2">
+                <div>
+                    <p class="text-sm font-semibold text-slate-700 dark:text-slate-200">📊 Прогресс сегодня</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400" id="progressText">0 из 0 привычек выполнено</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-2xl font-bold text-blue-600 dark:text-blue-400" id="progressPercent">0%</p>
+                </div>
             </div>
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Выполнение за месяц</p>
-                <p class="text-2xl font-bold text-blue-600" id="statAvg">0%</p>
+            <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
+                <div id="progressBar" class="progress-bar bg-gradient-to-r from-blue-500 to-emerald-500 h-3 rounded-full" style="width: 0%"></div>
             </div>
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Лучшая серия</p>
-                <p class="text-2xl font-bold text-emerald-600" id="statBestStreak">0</p>
-            </div>
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Сегодня</p>
-                <p class="text-2xl font-bold text-purple-600" id="statToday">0/0</p>
+            <div class="flex justify-between mt-2 text-xs text-slate-500 dark:text-slate-400">
+                <span>0%</span>
+                <span>50%</span>
+                <span>100%</span>
             </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <!-- Stats -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white dark:bg-dark-card p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+                <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Всего привычек</p>
+                <p class="text-2xl font-bold text-slate-900 dark:text-dark-text" id="statTotal">0</p>
+            </div>
+            <div class="bg-white dark:bg-dark-card p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+                <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">За месяц</p>
+                <p class="text-2xl font-bold text-blue-600 dark:text-blue-400" id="statAvg">0%</p>
+            </div>
+            <div class="bg-white dark:bg-dark-card p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+                <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Лучшая серия</p>
+                <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400" id="statBestStreak">0</p>
+            </div>
+            <div class="bg-white dark:bg-dark-card p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+                <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Сегодня</p>
+                <p class="text-2xl font-bold text-purple-600 dark:text-purple-400" id="statToday">0/0</p>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="bg-white dark:bg-dark-card rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div class="overflow-x-auto no-scrollbar">
                 <table class="w-full border-collapse min-w-max">
                     <thead>
-                        <tr class="bg-slate-50 text-slate-600 text-xs uppercase tracking-wider" id="tableHeader">
-                            <th class="p-4 border-b border-r border-slate-200 text-left sticky left-0 bg-slate-50 z-20 min-w-[200px]">Привычка</th>
-                            <th class="p-4 border-b border-slate-200 text-center sticky right-0 bg-slate-50 z-20 min-w-[100px]">Серия 🔥</th>
+                        <tr class="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs uppercase tracking-wider" id="tableHeader">
+                            <th class="p-4 border-b border-r border-slate-200 dark:border-slate-700 text-left sticky left-0 bg-slate-50 dark:bg-slate-800 z-20 min-w-[200px]">Привычка</th>
+                            <th class="p-4 border-b border-slate-200 dark:border-slate-700 text-center sticky right-0 bg-slate-50 dark:bg-slate-800 z-20 min-w-[100px]">Серия 🔥</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody" class="text-sm"></tbody>
                 </table>
             </div>
-            <div id="emptyState" class="hidden p-12 text-center text-slate-400">
+            <div id="emptyState" class="hidden p-12 text-center text-slate-400 dark:text-slate-500">
                 <p class="text-lg mb-2">🌱 Пока нет привычек</p>
                 <p>Нажми "Привычка", чтобы начать!</p>
             </div>
@@ -107,15 +155,15 @@
 
     <!-- Modal: Add Habit -->
     <div id="modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
-            <h3 class="text-xl font-bold mb-4">Добавить привычку</h3>
+        <div class="bg-white dark:bg-dark-card rounded-xl shadow-2xl w-full max-w-md p-6 border border-slate-200 dark:border-slate-700">
+            <h3 class="text-xl font-bold mb-4 text-slate-900 dark:text-dark-text">Добавить привычку</h3>
             <form id="habitForm" class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Название</label>
-                    <input type="text" id="habitName" placeholder="Например: Чтение 30 мин" required class="w-full rounded-lg border border-slate-300 p-2.5 focus:ring-2 focus:ring-blue-500 outline-none">
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Название</label>
+                    <input type="text" id="habitName" placeholder="Например: Чтение 30 мин" required class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-dark-text p-2.5 focus:ring-2 focus:ring-blue-500 outline-none">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Цвет</label>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Цвет</label>
                     <div class="flex gap-3">
                         <label class="cursor-pointer"><input type="radio" name="color" value="blue" checked class="sr-only peer"><div class="w-8 h-8 rounded-full bg-blue-500 peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-blue-500"></div></label>
                         <label class="cursor-pointer"><input type="radio" name="color" value="emerald" class="sr-only peer"><div class="w-8 h-8 rounded-full bg-emerald-500 peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-emerald-500"></div></label>
@@ -124,7 +172,7 @@
                     </div>
                 </div>
                 <div class="flex justify-end gap-3 pt-4">
-                    <button type="button" onclick="closeModal('modal')" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg">Отмена</button>
+                    <button type="button" onclick="closeModal('modal')" class="px-4 py-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg">Отмена</button>
                     <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium">Сохранить</button>
                 </div>
             </form>
@@ -133,22 +181,22 @@
 
     <!-- Modal: Note -->
     <div id="noteModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
-            <h3 class="text-xl font-bold mb-1" id="noteModalTitle">Заметка</h3>
-            <p class="text-sm text-slate-500 mb-4" id="noteModalDate"></p>
+        <div class="bg-white dark:bg-dark-card rounded-xl shadow-2xl w-full max-w-md p-6 border border-slate-200 dark:border-slate-700">
+            <h3 class="text-xl font-bold mb-1 text-slate-900 dark:text-dark-text" id="noteModalTitle">Заметка</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-4" id="noteModalDate"></p>
             <form id="noteForm" class="space-y-4">
                 <input type="hidden" id="noteHabitId">
                 <input type="hidden" id="noteDateStr">
-                <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <div class="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
                     <input type="checkbox" id="noteCompleted" class="w-5 h-5 text-blue-600 rounded focus:ring-blue-500">
-                    <label for="noteCompleted" class="text-sm font-medium text-slate-700 cursor-pointer">Отметить как выполненное</label>
+                    <label for="noteCompleted" class="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer">Отметить как выполненное</label>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Заметка за этот день</label>
-                    <textarea id="noteText" rows="3" placeholder="Например: Болела голова..." class="w-full rounded-lg border border-slate-300 p-2.5 focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Заметка за этот день</label>
+                    <textarea id="noteText" rows="3" placeholder="Например: Болела голова..." class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-dark-text p-2.5 focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
                 </div>
                 <div class="flex justify-end gap-3 pt-2">
-                    <button type="button" onclick="closeModal('noteModal')" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg">Отмена</button>
+                    <button type="button" onclick="closeModal('noteModal')" class="px-4 py-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg">Отмена</button>
                     <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium">Сохранить</button>
                 </div>
             </form>
@@ -160,7 +208,6 @@
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
         import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
-        // 🔑 ТВОИ КЛЮЧИ FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyBGMD0JO6zp-nO5g0tCLR8sbOefhIw2wz8",
             authDomain: "habitstrack-36d17.firebaseapp.com",
@@ -184,6 +231,31 @@
         let viewYear = today.getFullYear();
         let viewMonth = today.getMonth();
         const todayStr = today.toISOString().split('T')[0];
+
+        // --- Dark Mode ---
+        window.toggleDarkMode = () => {
+            const html = document.documentElement;
+            const icon = document.getElementById('themeIcon');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                html.classList.add('light');
+                icon.textContent = '🌙';
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.classList.remove('light');
+                html.classList.add('dark');
+                icon.textContent = '☀️';
+                localStorage.setItem('theme', 'dark');
+            }
+        };
+
+        // Load theme on startup
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        if (savedTheme === 'dark') {
+            document.documentElement.classList.remove('light');
+            document.documentElement.classList.add('dark');
+            document.getElementById('themeIcon').textContent = '☀️';
+        }
 
         // --- Auth ---
         window.signIn = () => {
@@ -274,6 +346,23 @@
             return streak;
         }
 
+        function updateProgressBar(todayCompleted, totalHabits) {
+            const percent = totalHabits > 0 ? Math.round((todayCompleted / totalHabits) * 100) : 0;
+            document.getElementById('progressBar').style.width = percent + '%';
+            document.getElementById('progressPercent').textContent = percent + '%';
+            document.getElementById('progressText').textContent = `${todayCompleted} из ${totalHabits} привычек выполнено`;
+            
+            // Change color based on progress
+            const progressBar = document.getElementById('progressBar');
+            if (percent < 33) {
+                progressBar.className = 'progress-bar bg-gradient-to-r from-red-500 to-orange-500 h-3 rounded-full';
+            } else if (percent < 66) {
+                progressBar.className = 'progress-bar bg-gradient-to-r from-yellow-500 to-orange-500 h-3 rounded-full';
+            } else {
+                progressBar.className = 'progress-bar bg-gradient-to-r from-blue-500 to-emerald-500 h-3 rounded-full';
+            }
+        }
+
         function render() {
             const headerRow = document.getElementById('tableHeader');
             const tbody = document.getElementById('tableBody');
@@ -292,7 +381,7 @@
             days.forEach(day => {
                 const isToday = (viewYear === today.getFullYear() && viewMonth === today.getMonth() && day === today.getDate());
                 const th = document.createElement('th');
-                th.className = `p-2 border-b border-slate-200 text-center min-w-[44px] select-none ${isToday ? 'bg-blue-50 text-blue-700 font-bold' : ''}`;
+                th.className = `p-2 border-b border-slate-200 dark:border-slate-700 text-center min-w-[44px] select-none ${isToday ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-bold' : ''}`;
                 th.textContent = day;
                 headerRow.insertBefore(th, headerRow.lastElementChild);
             });
@@ -301,19 +390,20 @@
             if (habits.length === 0) {
                 emptyState.classList.remove('hidden');
                 updateStats(0, 0, 0, 0);
+                updateProgressBar(0, 0);
             } else {
                 emptyState.classList.add('hidden');
                 let totalChecks = 0, totalPossible = 0, todayCompleted = 0, bestStreak = 0;
 
                 habits.forEach(habit => {
                     const tr = document.createElement('tr');
-                    tr.className = 'hover:bg-slate-50 transition border-b border-slate-100 last:border-0';
+                    tr.className = 'hover:bg-slate-50 dark:hover:bg-slate-800/50 transition border-b border-slate-100 dark:border-slate-800 last:border-0';
                     
                     const streak = calculateStreak(habit.id);
                     if (streak > bestStreak) bestStreak = streak;
 
                     const nameTd = document.createElement('td');
-                    nameTd.className = `p-3 border-r border-slate-200 sticky left-0 bg-white z-10 font-medium text-slate-800 flex items-center justify-between gap-2 min-w-[200px]`;
+                    nameTd.className = `p-3 border-r border-slate-200 dark:border-slate-700 sticky left-0 bg-white dark:bg-dark-card z-10 font-medium text-slate-800 dark:text-dark-text flex items-center justify-between gap-2 min-w-[200px]`;
                     nameTd.innerHTML = `
                         <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-${habit.color}-500"></span>${habit.name}</span>
                         <button onclick="deleteHabit('${habit.id}')" class="text-slate-300 hover:text-red-500 transition px-2" title="Удалить">✕</button>
@@ -331,24 +421,24 @@
                         const hasNote = !!notesData[key];
 
                         const td = document.createElement('td');
-                        td.className = `p-1 text-center border-r border-slate-100 last:border-0 relative ${isToday ? 'bg-blue-50/50' : ''}`;
+                        td.className = `p-1 text-center border-r border-slate-100 dark:border-slate-800 last:border-0 relative ${isToday ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`;
                         
                         if (!isFuture) {
                             const btn = document.createElement('button');
-                            btn.className = `cell-checkbox w-8 h-8 rounded-md border-2 flex items-center justify-center text-lg mx-auto ${isCompleted ? 'cell-checked border-emerald-600 text-white' : 'border-slate-200 text-transparent hover:border-slate-400'}`;
+                            btn.className = `cell-checkbox w-8 h-8 rounded-md border-2 flex items-center justify-center text-lg mx-auto ${isCompleted ? 'cell-checked border-emerald-600 text-white' : 'border-slate-200 dark:border-slate-600 text-transparent hover:border-slate-400 dark:hover:border-slate-500'}`;
                             btn.innerHTML = '✓';
                             btn.onclick = () => toggleHabit(habit.id, dateStr, !isCompleted);
                             td.appendChild(btn);
 
                             if (hasNote) {
                                 const noteBtn = document.createElement('button');
-                                noteBtn.className = 'absolute top-0.5 right-0.5 text-[10px] bg-white rounded-full shadow-sm border border-slate-200 w-4 h-4 flex items-center justify-center hover:bg-blue-50 transition';
+                                noteBtn.className = 'absolute top-0.5 right-0.5 text-[10px] bg-white dark:bg-slate-700 rounded-full shadow-sm border border-slate-200 dark:border-slate-600 w-4 h-4 flex items-center justify-center hover:bg-blue-50 dark:hover:bg-blue-900/30 transition';
                                 noteBtn.innerHTML = '📝';
                                 noteBtn.onclick = (e) => { e.stopPropagation(); openNoteModal(habit.id, dateStr, habit.name); };
                                 td.appendChild(noteBtn);
                             } else {
                                 const emptyNoteBtn = document.createElement('button');
-                                emptyNoteBtn.className = 'absolute top-0.5 right-0.5 text-[10px] text-slate-300 hover:text-blue-500 transition opacity-0 hover:opacity-100';
+                                emptyNoteBtn.className = 'absolute top-0.5 right-0.5 text-[10px] text-slate-300 dark:text-slate-600 hover:text-blue-500 dark:hover:text-blue-400 transition opacity-0 hover:opacity-100';
                                 emptyNoteBtn.innerHTML = '+📝';
                                 emptyNoteBtn.onclick = (e) => { e.stopPropagation(); openNoteModal(habit.id, dateStr, habit.name); };
                                 td.appendChild(emptyNoteBtn);
@@ -358,20 +448,21 @@
                             totalPossible++;
                             if (isToday && isCompleted) todayCompleted++;
                         } else {
-                            td.className += ' bg-slate-50/50';
+                            td.className += ' bg-slate-50 dark:bg-slate-800/50';
                         }
                         tr.appendChild(td);
                     });
 
                     const streakTd = document.createElement('td');
-                    streakTd.className = 'p-3 border-l border-slate-200 text-center sticky right-0 bg-white z-10 font-bold text-slate-700 min-w-[100px]';
-                    streakTd.innerHTML = streak > 0 ? `<span class="text-orange-500">🔥 ${streak}</span>` : '<span class="text-slate-300">-</span>';
+                    streakTd.className = 'p-3 border-l border-slate-200 dark:border-slate-700 text-center sticky right-0 bg-white dark:bg-dark-card z-10 font-bold text-slate-700 dark:text-slate-200 min-w-[100px]';
+                    streakTd.innerHTML = streak > 0 ? `<span class="text-orange-500 dark:text-orange-400">🔥 ${streak}</span>` : '<span class="text-slate-300 dark:text-slate-600">-</span>';
                     tr.appendChild(streakTd);
 
                     tbody.appendChild(tr);
                 });
 
                 updateStats(habits.length, totalChecks, totalPossible, todayCompleted, bestStreak);
+                updateProgressBar(todayCompleted, habits.length);
             }
         }
 
