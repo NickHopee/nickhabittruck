@@ -266,7 +266,7 @@
                 <table class="w-full border-collapse min-w-max">
                     <thead>
                         <tr class="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] md:text-xs uppercase tracking-wider" id="tableHeader">
-                            <th class="p-2 md:p-4 border-b border-r border-slate-200 dark:border-slate-700 text-left sticky-col bg-slate-50 dark:bg-slate-800 min-w-[120px] md:min-w-[150px]">Активность</th>
+                            <th class="p-2 md:p-4 border-b border-r border-slate-200 dark:border-slate-700 text-left sticky-col bg-slate-50 dark:bg-slate-800 min-w-[120px] md:min-w-[150px]">Ворк</th>
                             <th class="p-2 md:p-4 border-b border-slate-200 dark:border-slate-700 text-center sticky-col-right bg-slate-50 dark:bg-slate-800 min-w-[80px] md:min-w-[100px]">Серия </th>
                         </tr>
                         <tr id="weekdaysRow" class="bg-slate-50 dark:bg-slate-800 text-[8px] md:text-[10px] text-slate-400 dark:text-slate-500">
@@ -287,10 +287,10 @@
     <!-- Add Activity Modal -->
     <div id="modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="bg-white dark:bg-dark-card rounded-xl shadow-2xl w-full max-w-md p-6 border border-slate-200 dark:border-slate-700 max-h-[90vh] overflow-y-auto">
-            <h3 class="text-xl font-bold mb-4 text-slate-900 dark:text-dark-text">Новая активность</h3>
+            <h3 class="text-xl font-bold mb-4 text-slate-900 dark:text-dark-text">Планируем...</h3>
             <form id="habitForm" class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Название</label>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"></label>
                     <input type="text" id="activityName" placeholder="Например: Чтение, Спорт..." required class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-dark-text p-2.5 focus:ring-2 focus:ring-blue-500 outline-none">
                 </div>
                 
@@ -312,7 +312,7 @@
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('📝')">📝</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('💻')">💻</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('💼')">💼</button>
-                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🎯')"></button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🎯')">🎯</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('💪')">💪</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🔥')">🔥</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('⭐')">⭐</button>
@@ -793,7 +793,7 @@
                         <span class="cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 text-base md:text-lg hidden md:block"></span>
                         <div class="flex-1 min-w-0 flex items-center gap-1 md:gap-2">
                             <span class="text-xl md:text-2xl flex-shrink-0">${habit.emoji || '📌'}</span>
-                            <span class="truncate mobile-text-xs">${habit.name || 'Активность'}</span>
+                            <span class="truncate mobile-text-xs">${habit.name || 'Ворк'}</span>
                         </div>
                         <div class="flex md:hidden gap-1">
                             <button onclick="moveHabit('${habit.id}', -1)" class="text-slate-400 hover:text-blue-500 text-xs px-1">↑</button>
@@ -873,7 +873,7 @@
 
         window.deleteHabit = async (habitId) => {
             if (!currentUser) return;
-            if (confirm('Удалить эту активность и всю историю?')) {
+            if (confirm('Удалить эту запись и всю историю?')) {
                 await deleteDoc(doc(db, "users", currentUser.uid, "habits", habitId));
             }
         };
