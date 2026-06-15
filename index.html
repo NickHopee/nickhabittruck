@@ -24,7 +24,6 @@
         .cell-checked { background-color: #10b981; border-color: #059669; }
         .loader { border-top-color: #3498db; animation: spinner 1.5s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .progress-bar { transition: width 0.5s ease-in-out; }
         .dragging { opacity: 0.4; background: #e0f2fe !important; }
         .drag-over { border-top: 3px solid #3b82f6 !important; }
         .mood-cell { transition: all 0.2s; cursor: pointer; }
@@ -39,6 +38,28 @@
         }
         .emoji-btn { transition: all 0.2s; cursor: pointer; }
         .emoji-btn:hover { transform: scale(1.15); }
+        
+        /* Level tooltip */
+        .level-tooltip {
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .level-container:hover .level-tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+        .xp-bar {
+            transition: width 0.5s ease-in-out;
+        }
+        .level-up-animation {
+            animation: levelUp 1s ease-out;
+        }
+        @keyframes levelUp {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-dark-bg text-slate-800 dark:text-dark-text transition-colors duration-300 p-4 md:p-8">
@@ -73,6 +94,28 @@
             </div>
             <div class="flex gap-3 flex-wrap items-center">
                 <div class="flex items-center gap-2 mr-2">
+                    <!-- Level Container with Tooltip -->
+                    <div class="level-container relative flex items-center gap-2 cursor-pointer">
+                        <div class="flex items-center gap-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-1.5 rounded-full font-bold text-sm shadow-lg">
+                            <span>⭐</span>
+                            <span id="userLevel">1</span>
+                        </div>
+                        
+                        <!-- Tooltip -->
+                        <div class="level-tooltip absolute right-0 top-full mt-2 w-64 bg-white dark:bg-dark-card rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 p-4 z-50">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">Прогресс уровня</span>
+                                <span class="text-xs text-slate-500 dark:text-slate-400" id="xpText">0/100 XP</span>
+                            </div>
+                            <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2.5 overflow-hidden">
+                                <div id="xpBar" class="xp-bar bg-gradient-to-r from-purple-500 to-pink-500 h-2.5 rounded-full" style="width: 0%"></div>
+                            </div>
+                            <div class="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                                <span id="xpToNext">100 XP</span> до следующего уровня
+                            </div>
+                        </div>
+                    </div>
+                    
                     <img id="userAvatar" src="" class="w-8 h-8 rounded-full border border-slate-300 dark:border-slate-600">
                     <span id="userName" class="text-sm font-medium text-slate-600 dark:text-slate-300 hidden md:block"></span>
                 </div>
@@ -84,20 +127,6 @@
             </div>
         </div>
 
-        <!-- Progress Bar -->
-        <div class="bg-white dark:bg-dark-card rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 mb-6">
-            <div class="flex justify-between items-center mb-2">
-                <div>
-                    <p class="text-sm font-semibold text-slate-700 dark:text-slate-200">📊 Прогресс сегодня</p>
-                    <p class="text-xs text-slate-500 dark:text-slate-400" id="progressText">0 из 3 активностей</p>
-                </div>
-                <p class="text-2xl font-bold text-blue-600 dark:text-blue-400" id="progressPercent">0%</p>
-            </div>
-            <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
-                <div id="progressBar" class="progress-bar bg-gradient-to-r from-blue-500 to-emerald-500 h-3 rounded-full" style="width: 0%"></div>
-            </div>
-        </div>
-
         <!-- Mood Diary -->
         <div class="bg-white dark:bg-dark-card rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 mb-6">
             <h3 class="font-bold text-slate-800 dark:text-dark-text flex items-center gap-2 mb-4">
@@ -106,26 +135,6 @@
             </h3>
             <div class="overflow-x-auto no-scrollbar">
                 <div class="flex gap-2 min-w-max pb-2" id="moodRow"></div>
-            </div>
-        </div>
-
-        <!-- Stats -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <div class="bg-white dark:bg-dark-card p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
-                <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Всего</p>
-                <p class="text-2xl font-bold text-slate-900 dark:text-dark-text" id="statTotal">0</p>
-            </div>
-            <div class="bg-white dark:bg-dark-card p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
-                <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">За месяц</p>
-                <p class="text-2xl font-bold text-blue-600 dark:text-blue-400" id="statAvg">0%</p>
-            </div>
-            <div class="bg-white dark:bg-dark-card p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
-                <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Лучшая серия</p>
-                <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400" id="statBestStreak">0</p>
-            </div>
-            <div class="bg-white dark:bg-dark-card p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
-                <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Сегодня</p>
-                <p class="text-2xl font-bold text-purple-600 dark:text-purple-400" id="statToday">0/0</p>
             </div>
         </div>
 
@@ -177,26 +186,26 @@
                     <div id="emojiPicker" class="hidden grid grid-cols-6 gap-1 mb-3 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('💧')">💧</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🏃')">🏃</button>
-                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🏋️')">️🏋️</button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🏋️')">️</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('😴')">😴</button>
-                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🧘')">🧘</button>
-                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🍎')">🍎</button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🧘')"></button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🍎')"></button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('📚')">📚</button>
-                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('📝')">📝</button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('📝')"></button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('💻')">💻</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('💼')">💼</button>
-                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🎯')">🎯</button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🎯')"></button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('💪')">💪</button>
-                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🔥')">🔥</button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🔥')"></button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('⭐')">⭐</button>
-                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🎨')">🎨</button>
-                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🎵')">🎵</button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🎨')"></button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🎵')"></button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🧹')">🧹</button>
-                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🍳')">🍳</button>
-                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🌱')">🌱</button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🍳')"></button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🌱')"></button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('✅')">✅</button>
                         <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('💰')">💰</button>
-                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🎓')">🎓</button>
+                        <button type="button" class="emoji-btn text-xl p-2 hover:bg-white dark:hover:bg-slate-700 rounded" onclick="selectEmoji('🎓')"></button>
                     </div>
                 </div>
                 
@@ -286,7 +295,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, addDoc, serverTimestamp, updateDoc } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, addDoc, serverTimestamp, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBGMD0JO6zp-nO5g0tCLR8sbOefhIw2wz8",
@@ -303,9 +312,15 @@
         const provider = new GoogleAuthProvider();
 
         let currentUser = null, habits = [], completions = {}, notesData = {}, moodsData = {};
+        let userLevel = 1, userXP = 0;
         const today = new Date();
         let viewYear = today.getFullYear(), viewMonth = today.getMonth();
         const todayStr = today.toISOString().split('T')[0];
+
+        // XP System: Level * 100 XP needed for next level
+        function getXPForLevel(level) {
+            return level * 100;
+        }
 
         // Dark Mode
         window.toggleDarkMode = () => {
@@ -327,7 +342,7 @@
         window.signIn = () => signInWithPopup(auth, provider).catch(e => alert("Ошибка входа: " + e.message));
         window.signOutUser = () => signOut(auth).then(() => location.reload());
 
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             document.getElementById('loadingScreen').classList.add('hidden');
             if (user) {
                 currentUser = user;
@@ -335,6 +350,9 @@
                 document.getElementById('appScreen').classList.remove('hidden');
                 document.getElementById('userName').textContent = user.displayName;
                 document.getElementById('userAvatar').src = user.photoURL || 'https://via.placeholder.com/32';
+                
+                // Load user level and XP
+                await loadUserData();
                 subscribeToData();
             } else {
                 currentUser = null;
@@ -342,6 +360,79 @@
                 document.getElementById('appScreen').classList.add('hidden');
             }
         });
+
+        async function loadUserData() {
+            if (!currentUser) return;
+            const userDoc = await getDoc(doc(db, "users", currentUser.uid, "profile", "stats"));
+            if (userDoc.exists()) {
+                const data = userDoc.data();
+                userLevel = data.level || 1;
+                userXP = data.xp || 0;
+            }
+            updateLevelDisplay();
+        }
+
+        async function addXP(amount) {
+            if (!currentUser) return;
+            
+            userXP += amount;
+            const xpNeeded = getXPForLevel(userLevel);
+            
+            // Level up check
+            if (userXP >= xpNeeded && userLevel < 100) {
+                userXP -= xpNeeded;
+                userLevel++;
+                
+                // Show level up notification
+                showLevelUpNotification(userLevel);
+                
+                // Save new level
+                await setDoc(doc(db, "users", currentUser.uid, "profile", "stats"), {
+                    level: userLevel,
+                    xp: userXP,
+                    updatedAt: serverTimestamp()
+                });
+            } else {
+                // Just update XP
+                await setDoc(doc(db, "users", currentUser.uid, "profile", "stats"), {
+                    level: userLevel,
+                    xp: userXP,
+                    updatedAt: serverTimestamp()
+                });
+            }
+            
+            updateLevelDisplay();
+        }
+
+        function updateLevelDisplay() {
+            document.getElementById('userLevel').textContent = userLevel;
+            const xpNeeded = getXPForLevel(userLevel);
+            const xpPercent = Math.min((userXP / xpNeeded) * 100, 100);
+            
+            document.getElementById('xpBar').style.width = xpPercent + '%';
+            document.getElementById('xpText').textContent = `${userXP}/${xpNeeded} XP`;
+            document.getElementById('xpToNext').textContent = xpNeeded - userXP;
+        }
+
+        function showLevelUpNotification(newLevel) {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-4 rounded-xl shadow-2xl z-50 level-up-animation';
+            notification.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <span class="text-3xl">🎉</span>
+                    <div>
+                        <div class="font-bold text-lg">Новый уровень!</div>
+                        <div class="text-sm">Ты достиг уровня ${newLevel}!</div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
 
         function subscribeToData() {
             if (!currentUser) return;
@@ -414,17 +505,6 @@
                 else { if (dateStr === todayStr && i === 0) continue; break; }
             }
             return streak;
-        }
-
-        function updateProgressBar(todayCompleted, totalHabits) {
-            const percent = totalHabits > 0 ? Math.round((todayCompleted / totalHabits) * 100) : 0;
-            document.getElementById('progressBar').style.width = percent + '%';
-            document.getElementById('progressPercent').textContent = percent + '%';
-            document.getElementById('progressText').textContent = `${todayCompleted} из ${totalHabits} активностей`;
-            const bar = document.getElementById('progressBar');
-            if (percent < 33) bar.className = 'progress-bar bg-gradient-to-r from-red-500 to-orange-500 h-3 rounded-full';
-            else if (percent < 66) bar.className = 'progress-bar bg-gradient-to-r from-yellow-500 to-orange-500 h-3 rounded-full';
-            else bar.className = 'progress-bar bg-gradient-to-r from-blue-500 to-emerald-500 h-3 rounded-full';
         }
 
         // Emoji Picker
@@ -542,11 +622,8 @@
             tbody.innerHTML = '';
             if (habits.length === 0) {
                 emptyState.classList.remove('hidden');
-                updateStats(0, 0, 0, 0);
-                updateProgressBar(0, 0);
             } else {
                 emptyState.classList.add('hidden');
-                let totalChecks = 0, totalPossible = 0, todayCompleted = 0, bestStreak = 0;
 
                 habits.forEach((habit) => {
                     const tr = document.createElement('tr');
@@ -562,7 +639,6 @@
                     tr.addEventListener('drop', (e) => handleDrop(e, habit.id));
 
                     const streak = calculateStreak(habit.id);
-                    if (streak > bestStreak) bestStreak = streak;
 
                     const scheduleLabel = getScheduleLabel(habit);
                     const nameTd = document.createElement('td');
@@ -620,10 +696,6 @@
                                 emptyNoteBtn.onclick = (e) => { e.stopPropagation(); openNoteModal(habit.id, dateStr, habit.name); };
                                 td.appendChild(emptyNoteBtn);
                             }
-                            
-                            if (isCompleted) totalChecks++;
-                            totalPossible++;
-                            if (isToday && isCompleted) todayCompleted++;
                         }
                         tr.appendChild(td);
                     });
@@ -635,25 +707,24 @@
 
                     tbody.appendChild(tr);
                 });
-
-                updateStats(habits.length, totalChecks, totalPossible, todayCompleted, bestStreak);
-                updateProgressBar(todayCompleted, habits.length);
             }
-        }
-
-        function updateStats(total, checks, possible, todayDone, bestStreak = 0) {
-            document.getElementById('statTotal').textContent = total;
-            document.getElementById('statAvg').textContent = possible > 0 ? Math.round((checks / possible) * 100) + '%' : '0%';
-            document.getElementById('statBestStreak').textContent = bestStreak;
-            document.getElementById('statToday').textContent = `${todayDone}/${habits.length}`;
         }
 
         window.toggleHabit = async (habitId, dateStr, newState) => {
             if (!currentUser) return;
             const key = `${habitId}-${dateStr}`;
+            const wasCompleted = !!completions[key];
+            
             const docRef = doc(db, "users", currentUser.uid, "completions", key);
-            if (newState) await setDoc(docRef, { completed: true, updatedAt: serverTimestamp() });
-            else await deleteDoc(docRef);
+            if (newState) {
+                await setDoc(docRef, { completed: true, updatedAt: serverTimestamp() });
+                // Add XP only on first completion
+                if (!wasCompleted) {
+                    await addXP(10);
+                }
+            } else {
+                await deleteDoc(docRef);
+            }
         };
 
         window.deleteHabit = async (habitId) => {
@@ -783,7 +854,7 @@
         window.exportToExcel = () => {
             const monthNames = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
             const days = Array.from({ length: getDaysInMonth(viewYear, viewMonth) }, (_, i) => i + 1);
-            const moodEmojis = ['', '😢', '😕', '😐', '🙂', '😄'];
+            const moodEmojis = ['', '😢', '', '😐', '🙂', '😄'];
             
             let csv = [`Активность;${days.map(d => `${d} ${monthNames[viewMonth]}`).join(';')};Серия\n`];
             habits.forEach(habit => {
