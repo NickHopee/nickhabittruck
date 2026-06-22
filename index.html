@@ -151,6 +151,149 @@
             padding: 12px;
             margin-top: 12px;
         }
+        /* ===== ПИКСЕЛЬНЫЕ РАСТЕНИЯ ===== */
+        .pixel-plant {
+          width: 40px;
+          height: 32px;
+          image-rendering: pixelated;
+          image-rendering: -moz-crisp-edges;
+          image-rendering: crisp-edges;
+          shape-rendering: crispEdges;
+        }
+        
+        /* Покачивание */
+        @keyframes pixel-sway {
+          0%, 100% { transform: rotate(-2deg) translateY(0); }
+          50% { transform: rotate(2deg) translateY(-2px); }
+        }
+        
+        /* Рост */
+        @keyframes pixel-grow {
+          0% { transform: scale(0.5); opacity: 0; }
+          25% { transform: scale(1.1); }
+          50% { transform: scale(0.95); }
+          100% { transform: scale(1); opacity: 1; }
+        }
+        
+        /* Увядание */
+        @keyframes pixel-wilt {
+          0% { transform: rotate(0deg) scale(1); filter: brightness(1); }
+          100% { transform: rotate(-15deg) scale(0.85); filter: brightness(0.5) sepia(0.6) hue-rotate(-30deg); }
+        }
+        
+        .plant-swaying {
+          animation: pixel-sway 3s ease-in-out infinite;
+          transform-origin: bottom center;
+        }
+        
+        .plant-growing {
+          animation: pixel-grow 0.8s steps(4);
+        }
+        
+        .plant-wilting {
+          animation: pixel-wilt 0.6s steps(3);
+        }
+        
+        /* Частицы */
+        .pixel-particles {
+          position: absolute;
+          pointer-events: none;
+        }
+        
+        .pixel-particle {
+          position: absolute;
+          width: 4px;
+          height: 4px;
+          image-rendering: pixelated;
+          animation: particle-fade 0.6s steps(3) forwards;
+        }
+        
+        @keyframes particle-fade {
+          0% { transform: translateY(0) scale(1); opacity: 1; }
+          100% { transform: translateY(-25px) scale(0); opacity: 0; }
+        }
+        
+        /* Контейнер растения в таблице */
+        .plant-container {
+          position: relative;
+          width: 50px;
+          height: 45px;
+          margin: 0 auto;
+          cursor: pointer;
+          transition: transform 0.2s;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        
+        .plant-container:hover {
+          transform: scale(1.15);
+        }
+        
+        /* Индикатор здоровья */
+        .plant-health-bar {
+          position: absolute;
+          bottom: 2px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 80%;
+          height: 3px;
+          background: rgba(0, 0, 0, 0.2);
+          border-radius: 2px;
+          overflow: hidden;
+        }
+        
+        .plant-health-fill {
+          height: 100%;
+          background: linear-gradient(to right, #ef4444, #f59e0b, #10b981);
+          transition: width 0.5s ease;
+        }
+        
+        /* Предупреждение */
+        .wilting-warning {
+          position: absolute;
+          top: -8px;
+          right: -8px;
+          font-size: 14px;
+          animation: bounce 1s infinite;
+        }
+        
+        @keyframes bounce {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-5px); }
+        }
+        
+        /* Модальное окно */
+        .plant-modal-backdrop {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.6);
+          backdrop-filter: blur(4px);
+          z-index: 1000;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+        }
+        
+        .plant-modal {
+          background: white;
+          dark: #1e293b;
+          padding: 24px;
+          border-radius: 16px;
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+          max-width: 320px;
+          width: 100%;
+          animation: modal-appear 0.3s ease-out;
+        }
+        
+        @keyframes modal-appear {
+          0% { transform: scale(0.9); opacity: 0; }
+          100% { transform: scale(1); opacity: 1; }
+        }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-dark-bg text-slate-800 dark:text-dark-text transition-colors duration-300 p-2 md:p-4">
@@ -276,10 +419,12 @@
                         <tr class="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] md:text-xs uppercase tracking-wider" id="tableHeader">
                             <th class="p-2 md:p-4 border-b border-r border-slate-200 dark:border-slate-700 text-left sticky-col bg-slate-50 dark:bg-slate-800 min-w-[120px] md:min-w-[150px]">Активность</th>
                             <th class="p-2 md:p-4 border-b border-slate-200 dark:border-slate-700 text-center sticky-col-right bg-slate-50 dark:bg-slate-800 min-w-[80px] md:min-w-[100px] hide-on-mobile">Серия 🔥</th>
+                            <th class="p-2 md:p-4 border-b border-slate-200 dark:border-slate-700 text-center bg-slate-50 dark:bg-slate-800 min-w-[60px] md:min-w-[80px]">🌱</th>
                         </tr>
                         <tr id="weekdaysRow" class="bg-slate-50 dark:bg-slate-800 text-[8px] md:text-[10px] text-slate-400 dark:text-slate-500">
                             <th class="p-1 border-b border-r border-slate-200 dark:border-slate-700 sticky-col bg-slate-50 dark:bg-slate-800"></th>
                             <th class="p-1 border-b border-slate-200 dark:border-slate-700 sticky-col-right bg-slate-50 dark:bg-slate-800 hide-on-mobile"></th>
+                            <th class="p-1 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"></th>
                         </tr>
                     </thead>
                     <tbody id="tableBody" class="text-xs md:text-sm"></tbody>
@@ -440,6 +585,121 @@
         let currentUser = null, habits = [], completions = {}, notesData = {}, moodsData = {};
         let userLevel = 1, userXP = 0;
         let xpEarned = {};
+        let plantsData = {};
+
+        // ===== ПИКСЕЛЬНЫЕ РАСТЕНИЯ SVG =====
+        const pixelPlants = {
+            0: `<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" class="pixel-plant" shape-rendering="crispEdges"><rect x="8" y="26" width="16" height="5" fill="#5D3A1A"/><rect x="6" y="28" width="4" height="2" fill="#5D3A1A"/><rect x="22" y="28" width="4" height="2" fill="#5D3A1A"/><rect x="12" y="22" width="6" height="4" fill="#8B6F47"/><rect x="13" y="23" width="2" height="2" fill="#A0826D"/></svg>`,
+            1: `<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" class="pixel-plant plant-swaying" shape-rendering="crispEdges"><rect x="8" y="26" width="16" height="5" fill="#5D3A1A"/><rect x="6" y="28" width="4" height="2" fill="#5D3A1A"/><rect x="22" y="28" width="4" height="2" fill="#5D3A1A"/><rect x="12" y="24" width="6" height="3" fill="#8B6F47"/><rect x="14" y="20" width="2" height="4" fill="#7CB342"/><rect x="15" y="21" width="1" height="2" fill="#9CCC65"/><rect x="11" y="21" width="3" height="2" fill="#8BC34A"/><rect x="10" y="20" width="2" height="2" fill="#AED581"/><rect x="16" y="19" width="3" height="2" fill="#8BC34A"/><rect x="17" y="18" width="2" height="2" fill="#AED581"/></svg>`,
+            2: `<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" class="pixel-plant plant-swaying" shape-rendering="crispEdges"><rect x="8" y="26" width="16" height="5" fill="#5D3A1A"/><rect x="6" y="28" width="4" height="2" fill="#5D3A1A"/><rect x="22" y="28" width="4" height="2" fill="#5D3A1A"/><rect x="14" y="16" width="3" height="10" fill="#558B2F"/><rect x="15" y="17" width="1" height="8" fill="#7CB342"/><rect x="11" y="20" width="3" height="2" fill="#558B2F"/><rect x="17" y="18" width="3" height="2" fill="#558B2F"/><rect x="10" y="16" width="2" height="2" fill="#558B2F"/><rect x="19" y="15" width="2" height="2" fill="#558B2F"/><rect x="9" y="19" width="4" height="3" fill="#689F38"/><rect x="8" y="18" width="2" height="2" fill="#8BC34A"/><rect x="18" y="17" width="4" height="3" fill="#689F38"/><rect x="19" y="16" width="2" height="2" fill="#8BC34A"/><rect x="10" y="14" width="3" height="2" fill="#7CB342"/><rect x="18" y="12" width="3" height="2" fill="#7CB342"/></svg>`,
+            3: `<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" class="pixel-plant plant-swaying" shape-rendering="crispEdges"><rect x="8" y="26" width="16" height="5" fill="#5D3A1A"/><rect x="6" y="28" width="4" height="2" fill="#5D3A1A"/><rect x="22" y="28" width="4" height="2" fill="#5D3A1A"/><rect x="14" y="10" width="3" height="16" fill="#33691E"/><rect x="15" y="11" width="1" height="14" fill="#558B2F"/><rect x="10" y="20" width="4" height="2" fill="#33691E"/><rect x="17" y="18" width="4" height="2" fill="#33691E"/><rect x="8" y="16" width="3" height="2" fill="#33691E"/><rect x="20" y="14" width="3" height="2" fill="#33691E"/><rect x="10" y="12" width="2" height="2" fill="#33691E"/><rect x="19" y="10" width="2" height="2" fill="#33691E"/><rect x="7" y="19" width="5" height="3" fill="#558B2F"/><rect x="6" y="18" width="2" height="2" fill="#689F38"/><rect x="19" y="17" width="5" height="3" fill="#558B2F"/><rect x="21" y="16" width="2" height="2" fill="#689F38"/><rect x="8" y="14" width="4" height="2" fill="#689F38"/><rect x="20" y="12" width="4" height="2" fill="#689F38"/><rect x="10" y="10" width="3" height="2" fill="#7CB342"/><rect x="18" y="9" width="3" height="2" fill="#7CB342"/><rect x="10" y="7" width="2" height="2" fill="#FFF"/><rect x="9" y="8" width="2" height="2" fill="#FFF"/><rect x="11" y="8" width="2" height="2" fill="#FFF"/><rect x="10" y="9" width="2" height="2" fill="#FFF"/><rect x="10" y="8" width="1" height="1" fill="#FFD54F"/><rect x="18" y="5" width="2" height="2" fill="#FFF"/><rect x="17" y="6" width="2" height="2" fill="#FFF"/><rect x="19" y="6" width="2" height="2" fill="#FFF"/><rect x="18" y="7" width="2" height="2" fill="#FFF"/><rect x="18" y="6" width="1" height="1" fill="#FFD54F"/><rect x="22" y="8" width="2" height="2" fill="#FFF"/><rect x="21" y="9" width="2" height="2" fill="#FFF"/><rect x="23" y="9" width="2" height="2" fill="#FFF"/><rect x="22" y="10" width="2" height="2" fill="#FFF"/><rect x="22" y="9" width="1" height="1" fill="#FFD54F"/></svg>`
+        };
+        
+        // ===== ФУНКЦИИ РАСТЕНИЙ =====
+        async function loadPlants() {
+            if (!currentUser) return;
+            try {
+                const plantsSnapshot = await getDocs(collection(db, "users", currentUser.uid, "plants"));
+                plantsData = {};
+                plantsSnapshot.forEach(doc => {
+                    const plant = doc.data();
+                    plantsData[plant.habitId] = { id: doc.id, ...plant };
+                });
+                console.log('🌱 Plants loaded:', Object.keys(plantsData).length);
+            } catch (error) {
+                console.error('Error loading plants:', error);
+            }
+        }
+        
+        async function createPlant(habitId, name, emoji) {
+            if (!currentUser) return;
+            try {
+                await setDoc(doc(db, "users", currentUser.uid, "plants", habitId), {
+                    habitId, habitName: name, habitEmoji: emoji,
+                    growthStage: 0, health: 0, streak: 0, totalDays: 0,
+                    lastWatered: serverTimestamp(), createdAt: serverTimestamp()
+                });
+                console.log('🌱 Plant created for:', name);
+            } catch (error) {
+                console.error('Error creating plant:', error);
+            }
+        }
+        
+        async function updatePlantGrowth(habitId, completed) {
+            const plant = plantsData[habitId];
+            if (!plant) return;
+            try {
+                let health = plant.health || 0;
+                let stage = plant.growthStage || 0;
+                let streak = plant.streak || 0;
+                let totalDays = plant.totalDays || 0;
+        
+                if (completed) {
+                    health = Math.min(100, health + 25);
+                    streak++;
+                    totalDays++;
+                    if (health >= 100 && stage < 3) {
+                        stage++;
+                        health = 0;
+                        showGrowthParticles(habitId);
+                    }
+                } else {
+                    health = Math.max(0, health - 40);
+                    if (health === 0 && stage > 0) {
+                        stage--;
+                        health = 30;
+                    }
+                }
+        
+                await setDoc(doc(db, "users", currentUser.uid, "plants", habitId), {
+                    health, growthStage: stage, streak, totalDays,
+                    lastWatered: serverTimestamp()
+                }, { merge: true });
+            } catch (error) {
+                console.error('Error updating plant:', error);
+            }
+        }
+        
+        function showGrowthParticles(habitId) {
+            const container = document.querySelector(`[data-plant-id="${habitId}"]`);
+            if (!container) return;
+            for (let i = 0; i < 6; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'pixel-particle';
+                particle.style.left = `${10 + Math.random() * 30}px`;
+                particle.style.top = `${10 + Math.random() * 20}px`;
+                particle.style.animationDelay = `${i * 0.1}s`;
+                particle.style.background = ['#8BC34A', '#CDDC39', '#FFD54F', '#FFF'][Math.floor(Math.random() * 4)];
+                container.appendChild(particle);
+                setTimeout(() => particle.remove(), 600);
+            }
+        }
+        
+        window.showPlantDetails = (habitId) => {
+            const p = plantsData[habitId];
+            if (!p) return;
+            const stageNames = ['Семя 🌰', 'Росток 🌱', 'Растение 🌿', 'Цветущее 🌺'];
+            const modal = document.createElement('div');
+            modal.className = 'plant-modal-backdrop';
+            modal.innerHTML = `
+                <div class="plant-modal">
+                    <h3 class="text-xl font-bold mb-4 text-slate-900 dark:text-dark-text flex items-center gap-2">
+                        ${p.habitEmoji || '🌱'} ${p.habitName || 'Растение'}
+                    </h3>
+                    <div class="mb-4 flex justify-center">${pixelPlants[p.growthStage || 0]}</div>
+                    <div class="space-y-2 text-sm text-slate-600 dark:text-slate-300">
+                        <div class="flex justify-between"><span>Стадия:</span><span class="font-bold">${stageNames[p.growthStage || 0]}</span></div>
+                        <div class="flex justify-between"><span>Здоровье:</span><span class="font-bold">${p.health || 0}%</span></div>
+                        <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2"><div class="h-2 rounded-full bg-gradient-to-r from-red-500 via-yellow-500 to-green-500" style="width:${p.health || 0}%"></div></div>
+                        <div class="flex justify-between"><span>Серия:</span><span class="font-bold">🔥 ${p.streak || 0}</span></div>
+                        <div class="flex justify-between"><span>Всего дней:</span><span class="font-bold">${p.totalDays || 0}</span></div>
+                    </div>
+                    <button onclick="this.closest('.plant-modal-backdrop').remove()" class="mt-4 w-full px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition">Закрыть</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+        };
         const today = new Date();
         let viewYear = today.getFullYear(), viewMonth = today.getMonth();
 
@@ -565,25 +825,39 @@
         }
 
         function subscribeToData() {
-            if (!currentUser) return;
-            const uid = currentUser.uid;
-            onSnapshot(collection(db, "users", uid, "habits"), (s) => {
-                habits = s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (a.order || 0) - (b.order || 0));
+          if (!currentUser) return;
+          const uid = currentUser.uid;
+          
+          onSnapshot(collection(db, "users", uid, "habits"), (s) => {
+            habits = s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (a.order || 0) - (b.order || 0));
+            render();
+          });
+          
+          onSnapshot(collection(db, "users", uid, "completions"), (s) => {
+            completions = {}; 
+            s.docs.forEach(d => { 
+              completions[d.id] = true; 
+              xpEarned[d.id] = true;
+            }); 
+            render();
+          });
+          
+          onSnapshot(collection(db, "users", uid, "notes"), (s) => {
+            notesData = {}; s.docs.forEach(d => { notesData[d.id] = d.data().text; }); render();
+          });
+          
+          onSnapshot(collection(db, "users", uid, "moods"), (s) => {
+            moodsData = {}; s.docs.forEach(d => { moodsData[d.id] = d.data(); }); render();
+          });
+          
+            // ===== ЗАГРУЗКА РАСТЕНИЙ =====
+            onSnapshot(collection(db, "users", uid, "plants"), (s) => {
+                plantsData = {};
+                s.docs.forEach(d => {
+                    const data = d.data();
+                    plantsData[data.habitId] = { id: d.id, ...data };
+                });
                 render();
-            });
-            onSnapshot(collection(db, "users", uid, "completions"), (s) => {
-                completions = {}; 
-                s.docs.forEach(d => { 
-                    completions[d.id] = true; 
-                    xpEarned[d.id] = true;
-                }); 
-                render();
-            });
-            onSnapshot(collection(db, "users", uid, "notes"), (s) => {
-                notesData = {}; s.docs.forEach(d => { notesData[d.id] = d.data().text; }); render();
-            });
-            onSnapshot(collection(db, "users", uid, "moods"), (s) => {
-                moodsData = {}; s.docs.forEach(d => { moodsData[d.id] = d.data(); }); render();
             });
         }
 
@@ -865,6 +1139,23 @@
                         streakTd.innerHTML = streak > 0 ? `<span class="text-orange-500 dark:text-orange-400 mobile-text-xs">🔥 ${streak}</span>` : '<span class="text-slate-300 dark:text-slate-600 mobile-text-xs">-</span>';
                         tr.appendChild(streakTd);
                     }
+                    
+                    // ===== КОЛОНКА С РАСТЕНИЕМ =====
+                    const plant = plantsData[habit.id];
+                    const plantStage = plant ? (plant.growthStage || 0) : 0;
+                    const plantHealth = plant ? (plant.health || 0) : 0;
+                    const plantTd = document.createElement('td');
+                    plantTd.className = 'p-2 md:p-3 border-l border-slate-200 dark:border-slate-700 text-center bg-white dark:bg-dark-card min-w-[60px] md:min-w-[80px] mobile-cell';
+                    plantTd.innerHTML = `
+                        <div class="plant-container" data-plant-id="${habit.id}" onclick="showPlantDetails('${habit.id}')" title="Нажми для деталей">
+                            ${pixelPlants[plantStage] || pixelPlants[0]}
+                            <div class="plant-health-bar">
+                                <div class="plant-health-fill" style="width: ${plantHealth}%"></div>
+                            </div>
+                            ${plantHealth < 30 && plant ? '<div class="wilting-warning">💧</div>' : ''}
+                        </div>
+                    `;
+                    tr.appendChild(plantTd);
 
                     tbody.appendChild(tr);
                 });
@@ -886,9 +1177,11 @@
             if (newState) {
                 await setDoc(docRef, { completed: true, updatedAt: serverTimestamp() });
                 await addXP(habitId, dateStr);
+                await updatePlantGrowth(habitId, true);
             } else {
                 await deleteDoc(docRef);
                 delete xpEarned[key];
+                await updatePlantGrowth(habitId, false);
             }
         };
 
@@ -896,6 +1189,11 @@
             if (!currentUser) return;
             if (confirm('Удалить эту активность и всю историю?')) {
                 await deleteDoc(doc(db, "users", currentUser.uid, "habits", habitId));
+                try {
+                    await deleteDoc(doc(db, "users", currentUser.uid, "plants", habitId));
+                } catch (e) {
+                    console.log('No plant to delete');
+                }
             }
         };
 
@@ -987,13 +1285,14 @@
                 schedule.days = days;
             }
             
-            await addDoc(collection(db, "users", currentUser.uid, "habits"), {
+            const habitRef = await addDoc(collection(db, "users", currentUser.uid, "habits"), {
                 name: name,
                 emoji: emoji,
                 schedule: schedule,
                 order: habits.length,
                 createdAt: serverTimestamp()
             });
+            await createPlant(habitRef.id, name, emoji);
             closeModal('modal');
         });
 
