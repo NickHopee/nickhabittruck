@@ -12,7 +12,7 @@
         }
     </script>
     <style>
-        body { font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
         .task-checkbox:checked + div { background: #10b981; border-color: #059669; }
         .task-checkbox:checked + div .task-text { text-decoration: line-through; opacity: 0.7; }
     </style>
@@ -93,9 +93,9 @@
                         <option value="📚"> Обучение</option>
                         <option value="🎮">🎮 Отдых</option>
                         <option value="🏠"> Дом</option>
-                        <option value="👨‍">👨👩 Семья</option>
+                        <option value="‍👩‍👧">👨‍👩‍ Семья</option>
                         <option value="💧">💧 Вода</option>
-                        <option value="🍎">🍎 Еда</option>
+                        <option value="🍎"> Еда</option>
                     </select>
                 </div>
                 <div>
@@ -132,7 +132,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, addDoc, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyD9xKth2OMMSyALSzGWuDuw3zCavfGg96c",
@@ -150,6 +150,7 @@
         let currentUser = null;
         let currentDate = new Date();
         let tasks = {};
+        let currentUnsubscribe = null;
 
         function getDateStr(date) {
             return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
@@ -158,6 +159,7 @@
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
+                updateDateDisplay();
                 subscribeToTasks();
             } else {
                 window.location.href = 'index.html';
@@ -168,18 +170,25 @@
             if (!currentUser) return;
             const dateStr = getDateStr(currentDate);
             
-            onSnapshot(collection(db, "users", currentUser.uid, "planner", dateStr, "tasks"), (snapshot) => {
+            // Отписываемся от предыдущей подписки
+            if (currentUnsubscribe) {
+                currentUnsubscribe();
+            }
+            
+            const tasksRef = collection(db, "users", currentUser.uid, "planner", dateStr, "tasks");
+            currentUnsubscribe = onSnapshot(tasksRef, (snapshot) => {
                 tasks = {};
-                snapshot.forEach(doc => {
-                    tasks[doc.id] = { id: doc.id, ...doc.data() };
+                snapshot.forEach(docSnap => {
+                    tasks[docSnap.id] = { id: docSnap.id, ...docSnap.data() };
                 });
                 renderTasks();
             });
         }
 
-        function renderTasks() {
+        window.renderTasks = () => {
             ['morning', 'day', 'evening'].forEach(section => {
                 const container = document.getElementById(`${section}-tasks`);
+                if (!container) return;
                 container.innerHTML = '';
                 
                 const sectionTasks = Object.values(tasks).filter(t => t.section === section);
@@ -192,7 +201,7 @@
                     const div = document.createElement('div');
                     div.className = 'flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700';
                     div.innerHTML = `
-                        <input type="checkbox" class="task-checkbox w-5 h-5 rounded ${task.completed ? 'checked' : ''}" 
+                        <input type="checkbox" class="task-checkbox w-5 h-5 rounded cursor-pointer" 
                                onchange="toggleTask('${task.id}', ${!task.completed})" ${task.completed ? 'checked' : ''}>
                         <div class="flex-1 flex items-center gap-2 ${task.completed ? 'opacity-50' : ''}">
                             <span class="text-lg">${task.category}</span>
@@ -204,16 +213,17 @@
                     container.appendChild(div);
                 });
             });
-        }
+        };
 
-        function getPriorityEmoji(p) {
-            return { high: '🔴', medium: '🟡', low: '🟢' }[p];
-        }
+        window.getPriorityEmoji = (p) => {
+            return { high: '🔴', medium: '', low: '🟢' }[p] || '🟡';
+        };
 
         window.addTask = (section) => {
             document.getElementById('taskSection').value = section;
             document.getElementById('taskModal').classList.remove('hidden');
             document.getElementById('taskModal').classList.add('flex');
+            document.getElementById('taskText').value = '';
             document.getElementById('taskText').focus();
         };
 
@@ -233,29 +243,41 @@
             const priority = document.querySelector('input[name="priority"]:checked').value;
             const dateStr = getDateStr(currentDate);
 
-            await addDoc(collection(db, "users", currentUser.uid, "planner", dateStr, "tasks"), {
-                section,
-                text,
-                category,
-                priority,
-                completed: false,
-                createdAt: serverTimestamp()
-            });
-
-            closeModal();
+            try {
+                await addDoc(collection(db, "users", currentUser.uid, "planner", dateStr, "tasks"), {
+                    section,
+                    text,
+                    category,
+                    priority,
+                    completed: false,
+                    createdAt: serverTimestamp()
+                });
+                closeModal();
+            } catch (error) {
+                console.error('Error adding task:', error);
+                alert('Ошибка при сохранении: ' + error.message);
+            }
         });
 
         window.toggleTask = async (taskId, completed) => {
             if (!currentUser) return;
             const dateStr = getDateStr(currentDate);
-            await setDoc(doc(db, "users", currentUser.uid, "planner", dateStr, "tasks", taskId), { completed }, { merge: true });
+            try {
+                await setDoc(doc(db, "users", currentUser.uid, "planner", dateStr, "tasks", taskId), { completed }, { merge: true });
+            } catch (error) {
+                console.error('Error toggling task:', error);
+            }
         };
 
         window.deleteTask = async (taskId) => {
             if (!currentUser) return;
             if (!confirm('Удалить задачу?')) return;
             const dateStr = getDateStr(currentDate);
-            await deleteDoc(doc(db, "users", currentUser.uid, "planner", dateStr, "tasks", taskId));
+            try {
+                await deleteDoc(doc(db, "users", currentUser.uid, "planner", dateStr, "tasks", taskId));
+            } catch (error) {
+                console.error('Error deleting task:', error);
+            }
         };
 
         window.changeDate = (days) => {
@@ -270,10 +292,10 @@
             subscribeToTasks();
         };
 
-        function updateDateDisplay() {
+        window.updateDateDisplay = () => {
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             document.getElementById('currentDate').textContent = currentDate.toLocaleDateString('ru-RU', options);
-        }
+        };
 
         // Dark mode
         const savedTheme = localStorage.getItem('theme') || 'light';
