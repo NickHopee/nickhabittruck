@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ru" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Планер - DumpTruck</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: { extend: { colors: { dark: { bg: '#0f172a', card: '#1e293b', text: '#f1f5f9' } } } }
+        }
+    </script>
+    <style>
+        body { font-family: 'Segoe UI', system-ui, sans-serif; }
+        .task-checkbox:checked + div { background: #10b981; border-color: #059669; }
+        .task-checkbox:checked + div .task-text { text-decoration: line-through; opacity: 0.7; }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-dark-bg text-slate-800 dark:text-dark-text transition-colors duration-300 p-4 md:p-8">
+
+    <!-- Header -->
+    <div class="max-w-4xl mx-auto mb-6">
+        <div class="flex justify-between items-center mb-4">
+            <h1 class="text-3xl font-bold">📋 Планер</h1>
+            <a href="index.html" class="px-4 py-2 bg-slate-200 dark:bg-slate-700 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition">
+                ← К трекеру
+            </a>
+        </div>
+        
+        <!-- Date Navigation -->
+        <div class="flex items-center gap-3 mb-4">
+            <button onclick="changeDate(-1)" class="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700">←</button>
+            <p class="text-lg font-semibold min-w-[200px] text-center" id="currentDate">Сегодня</p>
+            <button onclick="changeDate(1)" class="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700">→</button>
+            <button onclick="goToToday()" class="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Сегодня</button>
+        </div>
+    </div>
+
+    <!-- Task Sections -->
+    <div class="max-w-4xl mx-auto space-y-6">
+        
+        <!-- Morning -->
+        <div class="bg-white dark:bg-dark-card rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-700">
+            <h2 class="text-xl font-bold mb-3 flex items-center gap-2">
+                <span>🌅</span> Утро (6:00 - 12:00)
+            </h2>
+            <div id="morning-tasks" class="space-y-2"></div>
+            <button onclick="addTask('morning')" class="mt-3 w-full py-2 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg text-slate-500 hover:border-blue-500 hover:text-blue-500 transition">
+                + Добавить задачу
+            </button>
+        </div>
+
+        <!-- Day -->
+        <div class="bg-white dark:bg-dark-card rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-700">
+            <h2 class="text-xl font-bold mb-3 flex items-center gap-2">
+                <span>🌞</span> День (12:00 - 18:00)
+            </h2>
+            <div id="day-tasks" class="space-y-2"></div>
+            <button onclick="addTask('day')" class="mt-3 w-full py-2 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg text-slate-500 hover:border-blue-500 hover:text-blue-500 transition">
+                + Добавить задачу
+            </button>
+        </div>
+
+        <!-- Evening -->
+        <div class="bg-white dark:bg-dark-card rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-700">
+            <h2 class="text-xl font-bold mb-3 flex items-center gap-2">
+                <span>🌙</span> Вечер (18:00 - 24:00)
+            </h2>
+            <div id="evening-tasks" class="space-y-2"></div>
+            <button onclick="addTask('evening')" class="mt-3 w-full py-2 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg text-slate-500 hover:border-blue-500 hover:text-blue-500 transition">
+                + Добавить задачу
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Add Task Modal -->
+    <div id="taskModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white dark:bg-dark-card rounded-xl p-6 w-full max-w-md">
+            <h3 class="text-xl font-bold mb-4">Новая задача</h3>
+            <form id="taskForm" class="space-y-4">
+                <input type="hidden" id="taskSection">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Задача</label>
+                    <input type="text" id="taskText" required class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 p-2.5" placeholder="Например: Чтение">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Категория</label>
+                    <select id="taskCategory" class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 p-2.5">
+                        <option value="💼">💼 Работа</option>
+                        <option value="🏃">🏃 Здоровье</option>
+                        <option value="📚"> Обучение</option>
+                        <option value="🎮">🎮 Отдых</option>
+                        <option value="🏠"> Дом</option>
+                        <option value="👨‍">👨👩 Семья</option>
+                        <option value="💧">💧 Вода</option>
+                        <option value="🍎">🍎 Еда</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Приоритет</label>
+                    <div class="flex gap-2">
+                        <label class="flex-1 cursor-pointer">
+                            <input type="radio" name="priority" value="high" class="sr-only peer">
+                            <div class="text-center py-2 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-red-500 peer-checked:text-white peer-checked:border-red-500">
+                                🔴 Высокий
+                            </div>
+                        </label>
+                        <label class="flex-1 cursor-pointer">
+                            <input type="radio" name="priority" value="medium" class="sr-only peer" checked>
+                            <div class="text-center py-2 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-yellow-500 peer-checked:text-white peer-checked:border-yellow-500">
+                                🟡 Средний
+                            </div>
+                        </label>
+                        <label class="flex-1 cursor-pointer">
+                            <input type="radio" name="priority" value="low" class="sr-only peer">
+                            <div class="text-center py-2 rounded-lg border-2 border-slate-200 dark:border-slate-600 peer-checked:bg-green-500 peer-checked:text-white peer-checked:border-green-500">
+                                🟢 Низкий
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="closeModal()" class="flex-1 py-2.5 bg-slate-200 dark:bg-slate-700 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600">Отмена</button>
+                    <button type="submit" class="flex-1 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD9xKth2OMMSyALSzGWuDuw3zCavfGg96c",
+            authDomain: "habitstrack-36d17.firebaseapp.com",
+            projectId: "habitstrack-36d17",
+            storageBucket: "habitstrack-36d17.firebasestorage.app",
+            messagingSenderId: "643795171139",
+            appId: "1:643795171139:web:4558588748c178e03161f6"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let currentDate = new Date();
+        let tasks = {};
+
+        function getDateStr(date) {
+            return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                subscribeToTasks();
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        function subscribeToTasks() {
+            if (!currentUser) return;
+            const dateStr = getDateStr(currentDate);
+            
+            onSnapshot(collection(db, "users", currentUser.uid, "planner", dateStr, "tasks"), (snapshot) => {
+                tasks = {};
+                snapshot.forEach(doc => {
+                    tasks[doc.id] = { id: doc.id, ...doc.data() };
+                });
+                renderTasks();
+            });
+        }
+
+        function renderTasks() {
+            ['morning', 'day', 'evening'].forEach(section => {
+                const container = document.getElementById(`${section}-tasks`);
+                container.innerHTML = '';
+                
+                const sectionTasks = Object.values(tasks).filter(t => t.section === section);
+                sectionTasks.sort((a, b) => {
+                    const priority = { high: 0, medium: 1, low: 2 };
+                    return priority[a.priority] - priority[b.priority];
+                });
+
+                sectionTasks.forEach(task => {
+                    const div = document.createElement('div');
+                    div.className = 'flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700';
+                    div.innerHTML = `
+                        <input type="checkbox" class="task-checkbox w-5 h-5 rounded ${task.completed ? 'checked' : ''}" 
+                               onchange="toggleTask('${task.id}', ${!task.completed})" ${task.completed ? 'checked' : ''}>
+                        <div class="flex-1 flex items-center gap-2 ${task.completed ? 'opacity-50' : ''}">
+                            <span class="text-lg">${task.category}</span>
+                            <span class="task-text flex-1">${task.text}</span>
+                            <span class="text-sm">${getPriorityEmoji(task.priority)}</span>
+                        </div>
+                        <button onclick="deleteTask('${task.id}')" class="text-slate-400 hover:text-red-500 px-2">✕</button>
+                    `;
+                    container.appendChild(div);
+                });
+            });
+        }
+
+        function getPriorityEmoji(p) {
+            return { high: '🔴', medium: '🟡', low: '🟢' }[p];
+        }
+
+        window.addTask = (section) => {
+            document.getElementById('taskSection').value = section;
+            document.getElementById('taskModal').classList.remove('hidden');
+            document.getElementById('taskModal').classList.add('flex');
+            document.getElementById('taskText').focus();
+        };
+
+        window.closeModal = () => {
+            document.getElementById('taskModal').classList.add('hidden');
+            document.getElementById('taskModal').classList.remove('flex');
+            document.getElementById('taskForm').reset();
+        };
+
+        document.getElementById('taskForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentUser) return;
+
+            const section = document.getElementById('taskSection').value;
+            const text = document.getElementById('taskText').value.trim();
+            const category = document.getElementById('taskCategory').value;
+            const priority = document.querySelector('input[name="priority"]:checked').value;
+            const dateStr = getDateStr(currentDate);
+
+            await addDoc(collection(db, "users", currentUser.uid, "planner", dateStr, "tasks"), {
+                section,
+                text,
+                category,
+                priority,
+                completed: false,
+                createdAt: serverTimestamp()
+            });
+
+            closeModal();
+        });
+
+        window.toggleTask = async (taskId, completed) => {
+            if (!currentUser) return;
+            const dateStr = getDateStr(currentDate);
+            await setDoc(doc(db, "users", currentUser.uid, "planner", dateStr, "tasks", taskId), { completed }, { merge: true });
+        };
+
+        window.deleteTask = async (taskId) => {
+            if (!currentUser) return;
+            if (!confirm('Удалить задачу?')) return;
+            const dateStr = getDateStr(currentDate);
+            await deleteDoc(doc(db, "users", currentUser.uid, "planner", dateStr, "tasks", taskId));
+        };
+
+        window.changeDate = (days) => {
+            currentDate.setDate(currentDate.getDate() + days);
+            updateDateDisplay();
+            subscribeToTasks();
+        };
+
+        window.goToToday = () => {
+            currentDate = new Date();
+            updateDateDisplay();
+            subscribeToTasks();
+        };
+
+        function updateDateDisplay() {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = currentDate.toLocaleDateString('ru-RU', options);
+        }
+
+        // Dark mode
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        if (savedTheme === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+</body>
+</html>
